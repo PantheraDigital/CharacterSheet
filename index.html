@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <title>CharaterStatSheet</title>
+      <meta charset="utf-8">
+      <meta name="author" content="Panthera">
+      <meta name="description" content="An interactive stat sheet to record your charater's stats fast and easy."><!--description used in search result of page-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"><!--describes how the layout and content adapts to the mobile viewport-->
+      <meta name="application-name" content="CharaterStatSheet"><!--name used for the "Add to Home Screen" function in their web browser -->
+      <meta name="keywords" content="DnD stat sheet character"><!--keywords for search engines-->
+
+      <link rel="stylesheet" href="style.css" />
+    </head>
+<body>
+  <div class="flexbox">
+
+    <div id="ability-scores" class="flexbox column ability-score-flex">
+    <div class="stat-box">
+      Strength
+      <input id="str" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+      <div class="stat-mod">+3</div>
+    </div>
+    
+    <div class="stat-box">
+      Dexterity
+      <input id="dex" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+      <div class="stat-mod">+3</div>
+    </div>
+
+    <div class="stat-box">
+      Constitution
+      <input id="con" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+      <div class="stat-mod">+3</div>
+    </div>
+
+    <div class="stat-box">
+      Intelligence
+      <input id="int" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+      <div class="stat-mod">+3</div>
+    </div>
+
+    <div class="stat-box">
+      Wisdom
+      <input id="wis" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+      <div class="stat-mod">+3</div>
+    </div>
+
+    <div class="stat-box">
+      Charisma
+      <input id="cha" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+      <div class="stat-mod">+3</div>
+    </div>
+    </div>
+
+    <div>
+      <div id="prof-container">
+        Proficiency Bonus +<input id="prof" type="number" min="2" max="6" value="2" class="blank-input shift-arrows">
+      </div>
+
+      <div id="saving-throws" class="no-label-pointer-events small-text allign_label prof-stats">
+        
+        <span>Saving Throws</span>
+      </div>
+      
+      <div id="skills" class="no-label-pointer-events small-text allign_label prof-stats">
+        
+        <span>Skills</span>
+      </div>
+    </div>
+
+    <div id="abilities">
+      <input type="button" value="+">
+      <span>Features & Traits</span>
+
+    </div>
+
+    
+  </div>
+  
+  <button id="save-btn"> save File </button>
+  <input type="file" id="load-file" accept=".txt">
+  
+  <script src="script.js"></script>
+</body>
+</html>
