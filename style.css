@@ -8,12 +8,10 @@
     -moz-box-shadow: none;
     box-shadow: none;
 }
-@media (hover: hover) {
-    /*help center number in input by moving arrows on devices that display them*/
-    input[type='number'].shift-arrows::-webkit-inner-spin-button,
-    input[type='number'].shift-arrows::-webkit-outer-spin-button {
-        margin-left: -15px;
-    }
+input[type='number'].shift-arrows::-webkit-inner-spin-button,
+input[type='number'].shift-arrows::-webkit-outer-spin-button {
+    margin-left: -15px;
+    opacity: 1;
 }
 
 .flexbox{
@@ -56,6 +54,7 @@
 
 .stat-box {
     --length: 50px;
+    --color: red;
 
     position: relative;
 
@@ -64,7 +63,7 @@
     margin-bottom: calc(3px + 0.5em);
 
     background: linear-gradient(white, white) padding-box,
-                linear-gradient(0deg, rgba(255,0,0,1) 0%, rgba(0,0,0,1) 70%) border-box;
+                linear-gradient(0deg, var(--color, red) 20%, rgba(0,0,0,1) 100%) border-box;
     border: solid transparent 2px;
     border-radius: 5px;
 
@@ -94,18 +93,13 @@
     width: fit-content;
     padding: 1px 2px 1px 2px;
 
-    border: solid red 2px;
+    border: solid var(--color, red) 2px;
     border-radius: 5px;
 
     background-color: white;
 }
 
 
-#prof-container{
-    border: solid black 1px;
-    width: auto;
-    text-align: center;
-}
 #prof{
     width: 2em;
 }
@@ -162,10 +156,15 @@ input.buble-check:active {
 input.buble-check:hover {
     outline: 1px solid black;
 }
+input.buble-check.double:checked {
+    border: 1px solid black;
+    background-color:firebrick;
+}
 
 .skill-type{
+    --color: grey;
     font-size: x-small;
-    color:gray;
+    color:var(--color, grey);
     width: fit-content !important;
 }
 
@@ -284,4 +283,99 @@ input.buble-check:hover {
     position: absolute;
     left: 50%;
     transform: translate(-50%, 0);
+}
+
+
+
+.container-border {
+    max-width: fit-content;
+    border: solid black 1px;
+    padding: 5px;
+}
+
+
+.input-container label {
+    display: inline-block;
+    max-width: var(--label-max-width, none);
+    min-width: var(--label-max-width, auto);
+    padding: var(--label-padding, none);
+}
+
+.input-container label:first-of-type {
+    display: inline-block;
+    max-width: var(--first-label-max-width, var(--label-max-width, none));
+    min-width: var(--first-label-max-width, var(--label-max-width, auto));
+    padding: var(--first-label-padding, var(--label-padding, none));
+}
+
+.input-container label span {
+    display: inline-block;
+    max-width: var(--label-text-max-width, none);
+    min-width: var(--label-text-max-width, auto);
+}
+
+.input-container input[type="number"] {
+    max-width: var(--num-input-max-width, none);
+    min-width: var(--num-input-max-width, auto);
+}
+
+.editable-area{
+    border: solid black 1px;
+    min-width: 48ch;
+    display: inline-block;
+    text-align: left;
+    padding: 0 2px;
+  }
+
+
+.spinner{
+    display: inline-block; 
+    vertical-align: text-bottom;
+}
+.arrow-button{
+    display: block;
+    box-sizing: border-box;
+    position: relative;
+
+    padding: 0;
+    border: none;
+    margin: 0;
+
+    height: 10px; 
+    width: 15px;
+    
+    text-decoration: none;
+    text-align:center;
+    font-size:x-large;
+    line-height: 10px;
+}
+.arrow-button::before{
+    content: '';
+    display: inline-block;
+    position: absolute;
+    pointer-events: none;
+    inset: 0;
+}
+
+.arrow-button.up{
+	inset: 0 0 50% 0;
+}
+.arrow-button.up::before{
+    content: '\1F891';
+    inset: -110% 0 0 0;
+}
+.arrow-button.down{
+	inset: 50% 0 0 0;
+}
+.arrow-button.down::before{
+    content: '\1F893';
+    inset: 90% 0 0 0;
+}
+
+.arrow-button:hover{
+    background-color: lightgrey;
+}
+.arrow-button:active{
+    background-color: grey;
+    color: white;
 }

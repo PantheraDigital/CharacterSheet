@@ -12,72 +12,289 @@
       <link rel="stylesheet" href="style.css" />
     </head>
 <body>
-  <div class="flexbox">
+  <template id="spell-template">
+    <div class="container-border" name="spell">
+      <label><span>spell</span> <input name="name"></label>
+      <label><span>LV</span> <select name="lv">
+        <option value="---" disabled selected>---</option>
+        <option value="cantrips">cantrip</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+      </select></label>
+      <label><span>ready</span> <input name="ready" type="checkbox"></label>
+      
+      <br>
+      <label><span>cast time</span> <input name="cast-time"></label><br>
+      <label><span>range/area</span> <input name="range"></label><br>
+      <label><span>duration</span> <input name="duration"></label><br>
+      <label><span>target</span> <input name="target"></label><br>
+      <label><span>components</span> <input name="components"></label><br>
 
-    <div id="ability-scores" class="flexbox column ability-score-flex">
-    <div class="stat-box">
-      Strength
-      <input id="str" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
-      <div class="stat-mod">+3</div>
+      <label><span>description</span><br> <div name="description" contenteditable="true" class="editable-area"><br><br><br></div></label>
+      <input type="button" name="remove-spell" value="remove" style="display: block;">
+    </div>
+  </template>
+  <template id="trait-template">
+    <div class="dropdown-wrapper">
+      <div class="dropdown-header">
+        <span>-</span>
+        <input type="text" name="ability-name" value="Ability Name">
+        <input type="button" name="add-check" value="+">
+        <input type="button" name="remove-check" value="-">
+      </div>
+      <div class="dropdown-body">
+        <ul class="ability-uses"><li style="display: inline-block;">
+            <input type="checkbox" name="ability-tracker-buble" class="buble-check">
+          </li><li style="display: inline-block;">
+            <input type="checkbox" name="ability-tracker-buble" class="buble-check">
+          </li></ul>
+        <div contenteditable="true" class="editable-text" name="trait-desc">
+          Ability Description
+        </div>
+        <input type="button" name="remove-dropdown" value="remove">
+      </div>
+    </div>
+  </template>
+  <template id="spell-slot-tracker-template">
+    <div name="spell-slot-tracker-wrapper" style="display: inline-block; padding: 5px 5px 0 0;">
+      <span id="_spell-slot-spinner" class="spinner">
+        <button name="add-slot" class="arrow-button up"></button>
+        <button name="remove-slot" class="arrow-button down"></button>
+      </span>
+      <label name="spell-slot-lv"></label>
+      <div id="_spell-slot-tracker" name="spell-slot-tracker" data-input-type="ticks" style="display: inline-block;"><input name="slot" type="checkbox"></div>
+    </div>
+  </template>
+
+
+  <div id="character-meta-block" class="container-border">
+    <label>name <input id="name" data-input-type="string"></label><br>
+    <div class="input-container" style="--label-max-width:177px; --label-padding: 5px 0 0 0">
+      <label>race <input id="race" data-input-type="string"></label>
+      <label>class <input id="class" data-input-type="string"></label>
+      <label>background <input id="background" data-input-type="string"></label>
+    </div>
+    <div class="input-container" style="--label-max-width:177px; --label-padding: 5px 0 0 0">
+      <label>level <input id="level" data-input-type="number" type="number"></label>
+      <label>xp <input id="xp" data-input-type="number" type="number"></label>
+      <label>alignment <select id="alignment" data-input-type="string-select">
+        <option value="Lawful Good">Lawful Good</option>
+        <option value="Neutral Good">Neutral Good</option>
+        <option value="Chaotic Good">Chaotic Good</option>
+
+        <option value="Lawful Neutral">Lawful Neutral</option>
+        <option value="True Neutral">True Neutral</option>
+        <option value="Chaotic Neutral">Chaotic Neutral</option>
+
+        <option value="Lawful Evil">Lawful Evil</option>
+        <option value="Neutral Evil">Neutral Evil</option>
+        <option value="Chaotic Evil">Chaotic Evil</option>
+      </select></label>
+    </div>
+    <div class="input-container" style="--label-max-width:177px; --label-padding: 5px 0 0 0">
+      <label>hit dice <input id="hit-dice" data-input-type="string"></label>
+      <label style="display: inline-block; padding-top: 5px;">
+        <span style="vertical-align: middle;">inspiration</span> <input id="inspiration" data-input-type="checkbox" type="checkbox" style="vertical-align: middle;">
+      </label>
     </div>
     
-    <div class="stat-box">
-      Dexterity
-      <input id="dex" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
-      <div class="stat-mod">+3</div>
+  </div>
+
+
+  <div style="display: flex; flex-direction: row; gap:10px; flex-wrap:wrap;">
+
+  
+    <div class="container-border" style="white-space: nowrap;">
+
+      <div id="ability-scores" class="" style="display: inline-flex; flex-direction: column; justify-content: space-between; vertical-align: top; height: 100%;">
+        <div class="stat-box" style="--color:rgb(241, 93, 93);">
+          Strength
+          <input id="strength" data-input-type="number" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+          <div class="stat-mod">+3</div>
+        </div>
+        
+        <div class="stat-box" style="--color:rgb(255, 179, 39);">
+          Dexterity
+          <input id="dexterity" data-input-type="number" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+          <div class="stat-mod">+3</div>
+        </div>
+
+        <div class="stat-box" style="--color:rgb(107, 167, 130);">
+          Constitution
+          <input id="constitution" data-input-type="number" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+          <div class="stat-mod">+3</div>
+        </div>
+
+        <div class="stat-box" style="--color:rgb(114, 198, 232);">
+          Intelligence
+          <input id="intelligence" data-input-type="number" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+          <div class="stat-mod">+3</div>
+        </div>
+
+        <div class="stat-box" style="--color:rgb(94, 116, 226);">
+          Wisdom
+          <input id="wisdom" data-input-type="number" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+          <div class="stat-mod">+3</div>
+        </div>
+
+        <div class="stat-box" style="--color:rgb(192, 102, 189);">
+          Charisma
+          <input id="charisma" data-input-type="number" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
+          <div class="stat-mod">+3</div>
+        </div>
+      </div>
+
+      <div style="display: inline-block; vertical-align: top;">
+        <div id="prof-container" class="container-border input-container" style="--num-input-max-width:4ch; text-align: center; max-width: none;">
+          <label>Proficiency Bonus +<input id="prof-bonus" data-input-type="number" type="number" min="2" max="6" value="2" class="blank-input shift-arrows"></label>
+        </div>
+
+        <div id="saving-throws" class="no-label-pointer-events small-text allign_label prof-stats">
+          
+          <span>Saving Throws</span>
+        </div>
+        
+        <div id="skills" class="no-label-pointer-events small-text allign_label prof-stats">
+          
+          <span>Skills</span>
+        </div>
+
+        <div id="passive-wisdom-block" class="container-border input-container" style="--num-input-max-width:4ch; text-align: center; max-width: none;">
+          <label><input id="passive-wisdom-prof" data-input-type="checkbox" type="checkbox">passive wisdom <input id="passive-wisdom-val" data-input-type="number" type="number" disabled></label>
+        </div>
+        
+      </div>
+
     </div>
 
-    <div class="stat-box">
-      Constitution
-      <input id="con" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
-      <div class="stat-mod">+3</div>
-    </div>
-
-    <div class="stat-box">
-      Intelligence
-      <input id="int" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
-      <div class="stat-mod">+3</div>
-    </div>
-
-    <div class="stat-box">
-      Wisdom
-      <input id="wis" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
-      <div class="stat-mod">+3</div>
-    </div>
-
-    <div class="stat-box">
-      Charisma
-      <input id="cha" type="number" min="1" max="30" value="17" class="ability-score blank-input shift-arrows">
-      <div class="stat-mod">+3</div>
-    </div>
-    </div>
 
     <div>
-      <div id="prof-container">
-        Proficiency Bonus +<input id="prof" type="number" min="2" max="6" value="2" class="blank-input shift-arrows">
+      
+      <div class="container-border" style="text-align: center; max-width: fit-content; max-width: 100%;">
+        <div id="combat-stats-block" class="input-container container-border" style="--num-input-max-width:4ch; display: inline-block;">
+          <label>AC <input id="armor-class" data-input-type="number" type="number" max="99"></label>
+          <label>speed <input id="speed" data-input-type="number" type="number" max="99"></label>
+          <label>initiative <input id="initiative" data-input-type="number" type="number" max="99"></label>
+        </div>
+        <br>
+
+        <div id="hp-block" class="input-container container-border" style="--num-input-max-width:6ch; text-align: center; display: inline-block;  vertical-align: middle;">
+          <div style="padding: 0 0 5px 0;">Hit Points</div>
+          <label>max <input id="hp-max" data-input-type="number" type="number" max="9999"></label><br>
+          <div style="--label-padding: 5px 0 0 0">
+            <label>current <input id="hp-current" data-input-type="number" type="number" max="9999"></label>
+            <label>temp <input id="hp-temp" data-input-type="number" type="number" max="9999"></label>
+          </div>
+        </div>
+
+        <div id="death-save-block" class="input-container container-border" style="--label-text-max-width:9ch; text-align: center; display: inline-block; min-height: 70px;  vertical-align: middle;">
+          <div style="padding: 0 0 5px 0;">Death Saves</div>
+          <label><span>successes</span> <div id="death-saves-successes" data-input-type="ticks" style="display: inline-block;"><input type="checkbox"><input type="checkbox"><input type="checkbox"></div></label><br>
+          <label><span>failures</span> <div id="death-saves-failures" data-input-type="ticks" style="display: inline-block;"><input type="checkbox"><input type="checkbox"><input type="checkbox"></div></label>
+        </div>
       </div>
 
-      <div id="saving-throws" class="no-label-pointer-events small-text allign_label prof-stats">
-        
-        <span>Saving Throws</span>
+
+      <div id="prof-block" class="input-container container-border" style="--label-text-max-width:9ch; --label-padding: 5px 0 0 0; text-align: center; max-width: 100%;">
+        <div style="padding: 0 0 5px 0;">proficiencies</div>
+        <label><span style="vertical-align: top;">armors</span> <div id="prof-armor" data-input-type="editable-div" contenteditable="true" class="editable-area"><br><br><br></div></label><br>
+        <label><span style="vertical-align: top;">weapons</span> <div id="prof-weapons" data-input-type="editable-div" contenteditable="true" class="editable-area"><br><br><br></div></label><br>
+        <label><span style="vertical-align: top;">tools</span> <div id="prof-tools" data-input-type="editable-div" contenteditable="true" class="editable-area"><br><br><br></div></label><br>
+        <label><span style="vertical-align: top;">languages</span> <div id="prof-languages" data-input-type="editable-div" contenteditable="true" class="editable-area"><br><br><br></div></label>
+      </div>
+
+
+      <div>
+        <div id="money-block" class="input-container container-border" style="--label-text-max-width:2ch; --label-padding: 1px 0 0 0; --num-input-max-width:8ch; text-align: center; display: inline-block; vertical-align: top;">
+          <label><span>cp</span> <input id="money-cp" data-input-type="number" type="number" max="999999"></label><br>
+          <label><span>sp</span> <input id="money-sp" data-input-type="number" type="number" max="999999"></label><br>
+          <label><span>ep</span> <input id="money-ep" data-input-type="number" type="number" max="999999"></label><br>
+          <label><span>gp</span> <input id="money-gp" data-input-type="number" type="number" max="999999"></label><br>
+          <label><span>pp</span> <input id="money-pp" data-input-type="number" type="number" max="999999"></label>
+        </div>
+
+        <div id="equipment-block" class="input-container container-border" style="--label-text-max-width:9ch; text-align: center;  display: inline-block;  vertical-align: top;">
+          <label><span>equipment</span><br> <div id="equipment" data-input-type="editable-div" contenteditable="true" class="editable-area"><br><br><br><br><br></div></label><br>
+        </div>
       </div>
       
-      <div id="skills" class="no-label-pointer-events small-text allign_label prof-stats">
-        
-        <span>Skills</span>
-      </div>
-    </div>
-
-    <div id="abilities">
-      <input type="button" value="+">
-      <span>Features & Traits</span>
-
     </div>
 
     
   </div>
-  
-  <button id="save-btn"> save File </button>
+
+
+
+  <div style="display: flex; flex-direction: row; gap:10px; flex-wrap:wrap;">
+    
+
+    <div>
+
+      <div id="traits">
+        <input type="button" value="+">
+        <span>Features & Traits</span>
+    
+      </div>
+
+    </div>
+
+    
+    <div>
+      
+      <div id="spell-block" class="container-border" style="text-align: center;">
+        Spell Stats<br>
+        <div class="input-container" style="--num-input-max-width:4ch; --label-padding: 5px 0 0 0;">
+          <label>ability <select id="spell-ability" data-input-type="string-select">
+            <option value="str">strength</option>
+            <option value="dex">dexterity</option>
+            <option value="con">constitution</option>
+            <option value="int">intelligence</option>
+            <option value="wis">wisdom</option>
+            <option value="chr">charisma</option>
+          </select></label>
+          <label>save <input id="spell-save" data-input-type="number" type="number"></label>
+          <label>atk mod <input id="spell-attack-mod" data-input-type="number" type="number"></label>
+        </div>
+      </div>
+
+
+      <div id="sorcery-point-block" class="input-container container-border" style="--num-input-max-width:4ch;">
+        <label>sorcery points <input id="sorcery-points" data-input-type="number" type="number" max="99" min="0"></label>
+        <label>current points <input id="sorcery-current-points" data-input-type="number" type="number" max="99" min="0"></label>
+        <input id="sorcery-point-reset-button" type="button" value="reset" style="vertical-align: middle;">
+      </div>
+
+
+      <div id="spell-slot-block" class="input-container container-border" style="--num-input-max-width:4ch;">
+        <label>spell slots</label>
+        <span id="spell-slot-level-count-spinner">
+          <button name="add-spell">+</button>
+          <button name="remove-spell" disabled>-</button>
+        </span>
+        <br>
+      </div>
+
+      <div id="spell-list" class="container-border">
+        <input type="button" value="Add Spell">
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <input id="clear-btn" type="button" value="clear local">
+  <input id="save-btn" type="button" value="save local">
+  <input id="load-btn" type="button" value="load local">
+  <input id="download-btn" type="button" value="download File">
   <input type="file" id="load-file" accept=".txt">
   
   <script src="script.js"></script>

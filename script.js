@@ -1,213 +1,134 @@
-const characterStats = {
-  name: "",
-  race: "",
-  alignment: "",
-  background: "",
-  xp: 0,
-  "class and level": "",
-
-  "ability score": {
-    strength: {
-      value: 11,
-      mod: 0,
-      save: false,
-      skills: {//skill name, proficient
-        "athletics": false
-      }
-    },
-    dexterity: {
-      value: 11,
-      mod: 0,
-      save: false,
-      skills: {
-        "acrobatics": false,
-        "sleight of hand": false,
-        "stealth": false
-      }
-    },
-    constitution: {
-      value: 11,
-      mod: 0,
-      save: false,
-      skills: {}
-    },
-    intelligence: {
-      value: 11,
-      mod: 0,
-      save: false,
-      skills: {
-        "arcana": false,
-        "history": false,
-        "investigation": false,
-        "nature": false,
-        "religion": false
-      }
-    },
-    wisdom: {
-      value: 11,
-      mod: 0,
-      save: false,
-      skills: {
-        "animal handling": false,
-        "insight": false,
-        "medicine": false,
-        "perception": false,
-        "survival": false
-      }
-    },
-    charisma: {
-      value: 11,
-      mod: 0,
-      save: false,
-      skills: {
-        "deception": false,
-        "intimidation": false,
-        "performance": false,
-        "persuasion": false
-      }
-    }
-  },
-  
-
-  "proficiency bonus": 2,
-
-  inspiration: 0,
-  "passive wisdom": 0,
-
-  "armor class": 0,
-  initiative: 0,
-  speed: 0,
-  "max hp": 0,
-  "current hp": 0,
-  "temp hp": 0,
-  "death saves": "",
-
-  "other proficiencies": "",
-
-  inventory: {
-    cp: 0,
-    sp: 0,
-    ep: 0,
-    gp: 0,
-    pp: 0,
-    items: ""
-  },
-
-  attacks: [
-    {
-      weapon: "Unarmed Strike",
-      range: "5ft",
-      proficient: true,//add prof bonus to bonus to hit
-      bonus: "str",
-      damage: "1 + str",
-      notes: "An attack made with any body part. You are automatically proficient in this attack."
-    }
-  ],
-
-  traits: [
-    {
-      name: "Ability Name",
-      description: "Ability Description",
-      charges: 2,
-      expended: 0
-    }
-  ],
-
-  notes: ""
-}
-//load obj
-
+"use strict";
 //fill page
 FillSkillBlock();
 FillSavingThrowBlock();
 
-//load obj values
-LoadAbilities();
-LoadSavingThrows();
-LoadSkills();
-LoadTraitDropDowns();
+UpdateAllValues();
+
 
 //assign button funcs
 //add event listners to stat inputs and set scores in statMap
-document.querySelectorAll(".stat-box").forEach((element) => {
+document.querySelectorAll(".ability-score").forEach((element) => {
   element.addEventListener("input", function () {
-    let abilityScore = element.querySelector(".ability-score");
-    let abilityID = FullStatNameFromPrefix(abilityScore.id);
-    let abilityObj = characterStats["ability score"][abilityID];
-    CheckInputValueInRange(abilityScore, 1, 30);
-    //change value
-    abilityObj.value = Number(abilityScore.value);
+    CheckInputValueInRange(element, 1, 30);
 
+    const mod = document.getElementById("prof-bonus").value;
     //update mod
-    abilityObj.mod = CalcStatMod(abilityScore.value);
-    element.querySelector(".stat-mod").innerText = (abilityObj.mod >= 0) ? ("+" + abilityObj.mod) : abilityObj.mod;
+    UpdateStatMod(element.parentElement);
 
     //update saving throw val
-    let saveProf = document.getElementById(`${abilityScore.id}-save-prof`).checked;
-    let saveBonus = saveProf ? abilityObj.mod + characterStats["proficiency bonus"] : abilityObj.mod;
-    document.getElementById(`${abilityScore.id}-save-mod`).innerText = (saveBonus >= 0) ? ('+' + saveBonus) : saveBonus;
-    abilityObj.save = saveProf;
+    UpdateSavingThrow(mod, document.getElementById(`${element.id.substring(0,3)}-save-prof`))
 
     //update skill vals
-    for(const skill in abilityObj.skills){
-      let skillID = skill.split(" ").join("-");
-      let skillProf = document.getElementById(`${skillID}-prof`).checked;
-      let skillBonus = skillProf ? abilityObj.mod + characterStats["proficiency bonus"] : abilityObj.mod;
-      abilityObj.skills[skill] = skillProf;
-      document.getElementById(`${skillID}-mod`).innerText = (skillBonus >= 0) ? ('+' + skillBonus) : skillBonus;
-    }
+    UpdateSkill(mod);
   });
-  
+  if(element.id === "wisdom"){
+    element.addEventListener("input", function () {
+      UpdatePasivePerception();
+    });
+  }
 });
 
 //add event listener to proficiency bonus input
-document.getElementById("prof").addEventListener("input", function (e) {
+document.getElementById("prof-bonus").addEventListener("input", function (e) {
   CheckInputValueInRange(e.currentTarget, 2, 6);
-  //UpdateProfBonus(e);
-  characterStats["proficiency bonus"] = Number(e.currentTarget.value);
-  //UpdateSavingThrows("all");
-  for(const save in characterStats["ability score"]){
-    let saveID = save.substring(0,3);
-    let saveObj = characterStats["ability score"][save];
-    let saveBonus = saveObj.save ? saveObj.mod + characterStats["proficiency bonus"] : saveObj.mod;
-    document.getElementById(`${saveID}-save-mod`).innerText = (saveBonus >= 0) ? ('+' + saveBonus) : saveBonus;
-  }
-  //UpdateSkill("all");
-  let skillContainer = document.getElementById("skills");
-  let skillLabels = skillContainer.getElementsByTagName("label");
-  for(const label of skillLabels){
-    let skillMod = characterStats["ability score"][FullStatNameFromPrefix(label.getAttribute("data-stat-type"))].mod;
-    let skill = label.htmlFor.substring(0, label.htmlFor.length - 5);
-    let hasProf = skillContainer.querySelector(`#${skill}-prof`).checked;
-    let bonus = hasProf ? skillMod + characterStats["proficiency bonus"] : skillMod;
-    document.getElementById(`${skill}-mod`).innerText = (bonus >= 0) ? ("+" + bonus) : bonus;
-  }
+  UpdatePasivePerception();
+  UpdateSkill(e.currentTarget.value);
+  UpdateSavingThrow(document.getElementById("prof-bonus").value);
 });
 
 //add event listeners to saving throws checkboxes
 document.getElementById("saving-throws").querySelectorAll('input[type="checkbox"]').forEach((element) => {
   element.addEventListener("input", function () {
-    //UpdateSavingThrows(element.id.split('-')[0]);
-    let ability = FullStatNameFromPrefix(element.id.split("-")[0]);
-    let bonus = element.checked ? characterStats["ability score"][ability].mod + characterStats["proficiency bonus"] : characterStats["ability score"][ability].mod;
-    characterStats["ability score"][ability].save = element.checked;
-    document.getElementById("saving-throws").querySelector(`#${element.id.split("-")[0]}-save-mod`).innerText = (bonus >= 0) ? ("+" + bonus) : bonus;
+    UpdateSavingThrow(document.getElementById("prof-bonus").value, element);
   });
   
 });
 
 document.getElementById("skills").querySelectorAll('input[type="checkbox"]').forEach((element) => {
     element.addEventListener("input", function () {
-      //UpdateSkill(element.id);
-      let skill = element.id.substring(0, element.id.length - 5);
-      let mod = document.getElementById("skills").querySelector(`#${skill}-mod`);
-      let ability = FullStatNameFromPrefix(mod.parentElement.getAttribute("data-stat-type"));
-      let bonus = element.checked ? characterStats["ability score"][ability].mod + characterStats["proficiency bonus"] : characterStats["ability score"][ability].mod;
-      characterStats["ability score"][ability].skills[skill] = element.checked;
-      mod.innerText = (bonus >= 0) ? ("+" + bonus) : bonus;
+      UpdateSkill(document.getElementById("prof-bonus").value, element);
+    });
+    element.addEventListener("dblclick", function(e){
+      this.classList.add("double");
+      e.currentTarget.checked = true;
+      UpdateSkill(document.getElementById("prof-bonus").value, element);
+    });
+    element.addEventListener("change", function(e){
+      if(!e.currentTarget.checked){
+        this.classList.remove("double");
+        UpdateSkill(document.getElementById("prof-bonus").value, element);
+      }
     });
 });
 
+document.getElementById("passive-wisdom-prof").addEventListener("input", function(e){
+  UpdatePasivePerception();
+});
+
+function UpdateSkill(profBonus, skillCheckbox = undefined){
+  if(skillCheckbox){
+    const skill = skillCheckbox.id.substring(0, skillCheckbox.id.length - 5);
+    const mod = document.getElementById(`${skill}-mod`);
+    const statMod = document.getElementById(FullStatNameFromPrefix(mod.parentElement.dataset.statType)).parentElement.querySelector(".stat-mod").innerText;
+    let bonus = 0;
+    if(skillCheckbox.classList.contains("double")){
+      bonus = parseInt(profBonus) * 2;
+    }else if(skillCheckbox.checked){
+      bonus = parseInt(profBonus);
+    }
+    bonus += parseInt(statMod);
+    mod.innerText = (bonus >= 0) ? (`+${bonus}`) : bonus;
+  }else{
+    //update all
+    const skillInputList = document.getElementById("skills").querySelectorAll("input");
+    for(const skillInput of skillInputList){
+      UpdateSkill(profBonus, skillInput);
+    }
+  }
+}
+function UpdatePasivePerception(){
+  const value = document.getElementById("passive-wisdom-val");
+  const prof = document.getElementById("passive-wisdom-prof");
+  const profBonus = document.getElementById("prof-bonus");
+  const wisVal = parseInt(document.getElementById("wisdom").parentElement.querySelector(".stat-mod").innerText);
+  value.value = 10 + wisVal + ((prof.checked) ? parseInt(profBonus.value) : 0);
+}
+function UpdateStatMod(statBox = undefined){
+  if(statBox){
+    const input = statBox.querySelector(".ability-score");
+    const mod = statBox.querySelector(".stat-mod");
+    const score = CalcStatMod(input.value);
+    mod.innerText = (score >= 0) ? `+${score}` : score;
+  }else{
+    const stats = document.getElementById("ability-scores").querySelectorAll(".stat-box");
+    for(const stat of stats){
+      UpdateStatMod(stat);
+    }
+  }
+}
+function UpdateSavingThrow(profBonus, checkbox = undefined){
+  if(checkbox){
+    const skill = checkbox.id.substring(0,3);
+    const mod = document.getElementById(`${skill}-save-mod`);
+    let val = document.getElementById(FullStatNameFromPrefix(skill)).parentElement.querySelector(".stat-mod").innerText;
+    val = parseInt(val);
+    if(checkbox.checked){val += parseInt(profBonus);}
+    mod.innerText = (val >= 0) ? (`+${val}`) : val;
+  }else{
+    const savingThrows = document.getElementById("saving-throws").querySelectorAll("input");
+    for(const save of savingThrows){
+      UpdateSavingThrow(profBonus, save);
+    }
+  }
+}
+function UpdateAllValues(){
+  const profBonus = document.getElementById("prof-bonus").value;
+  UpdateStatMod();
+  UpdateSkill(profBonus);
+  UpdatePasivePerception();
+  UpdateSavingThrow(profBonus);
+}
 
 function CalcStatMod(score){
   return Math.floor((score - 10) / 2);
@@ -244,40 +165,6 @@ function FullStatNameFromPrefix(statPrefix){
 }
 
 
-function LoadSavingThrows(){
-  let labels = document.getElementById("saving-throws").getElementsByTagName('label');
-  for(let i = 0; i < labels.length; i++){
-    let prefix = labels[i].htmlFor.split('-')[0];
-    let full = FullStatNameFromPrefix(prefix);
-    if(characterStats["ability score"].hasOwnProperty(full)){
-      let ability = characterStats["ability score"][full];
-      let bonus = ability.save ? ability.mod + characterStats["proficiency bonus"] : ability.mod;
-      labels[i].getElementsByTagName('span')[0].innerHTML = (bonus >= 0) ? ('+' + bonus) : bonus;
-      document.getElementById(labels[i].htmlFor).checked = characterStats["ability score"][full].save;
-    }
-  }
-}
-function LoadSkills(){
-  let labels = document.getElementById("skills").getElementsByTagName('label');
-  for(const label of labels){
-    let ability = characterStats["ability score"][FullStatNameFromPrefix(label.getAttribute("data-stat-type"))];
-    let skill = label.htmlFor.split("-")[0];
-    let bonus = ability.skills[skill] ? ability.mod + characterStats["proficiency bonus"] : ability.mod;
-    document.getElementById(label.htmlFor).checked = ability.skills[skill];
-    label.getElementsByTagName("span")[0].innerText = (bonus >= 0) ? ('+' + bonus) : bonus;
-  }
-}
-function LoadAbilities(){
-  let statBoxes = document.getElementsByClassName("stat-box");
-  for(const stat of statBoxes){
-    let input = stat.querySelector('input[type="number"]');
-    let ability = characterStats["ability score"][FullStatNameFromPrefix(input.id)];
-    input.value = ability.value;
-    stat.querySelector('.stat-mod').innerText = (ability.mod >= 0) ? ('+' + ability.mod) : ability.mod;
-  }
-}
-
-
 function FillSkillBlock(){
   /*
   skill structure
@@ -288,7 +175,12 @@ function FillSkillBlock(){
   <br> 
    */
   var skillBlock = document.getElementById("skills");
-  const skills = ["acrobatics_dex", "animal-handling_wis", "arcana_int", "athletics_str", "deception_cha", "history_int", "insight_wis", "intimidation_cha", "investigation_int", "medicine_wis", "nature_int", "perception_wis", "performance_cha", "persuasion_cha", "religion_int", "sleight-of-hand_dex", "stealth_dex", "survival_wis"];
+  const skills = ["acrobatics_dexterity", "animal-handling_wisdom", "arcana_intelligence",
+                  "athletics_strength", "deception_charisma", "history_intelligence", 
+                  "insight_wisdom", "intimidation_charisma", "investigation_intelligence", 
+                  "medicine_wisdom", "nature_intelligence", "perception_wisdom", 
+                  "performance_charisma", "persuasion_charisma", "religion_intelligence", 
+                  "sleight-of-hand_dexterity", "stealth_dexterity", "survival_wisdom"];
 
   for(var i = skills.length - 1; i >= 0; i--){
     var skill = skills[i].split("_");
@@ -299,9 +191,9 @@ function FillSkillBlock(){
 
     var inputLabel = document.createElement("label");
     inputLabel.htmlFor = `${skill[0]}-prof`;
-    inputLabel.setAttribute("data-stat-type", skill[1]);
+    inputLabel.setAttribute("data-stat-type", skill[1].substring(0,3));
     inputLabel.className = "capitalize";
-    inputLabel.innerHTML = `<span id="${skill[0]}-mod">_</span> ${skill[0].replace(/-/g, " ")} <span class="skill-type">(${skill[1]})</span>`;
+    inputLabel.innerHTML = `<span id="${skill[0]}-mod">_</span> ${skill[0].replace(/-/g, " ")} <span class="skill-type" style="--color:${window.getComputedStyle(document.getElementById(skill[1])).getPropertyValue("--color")}">(${skill[1].substring(0,3)})</span>`;
     
     
     skillBlock.insertBefore(document.createElement("br"), skillBlock.firstChild);
@@ -327,7 +219,9 @@ function FillSavingThrowBlock(){
     inputNode.className = "buble-check";
     inputNode.id = abilityShort + "-save-prof";
   
+    let abilityColor = window.getComputedStyle(document.getElementById(saves[i])).getPropertyValue("--color");
     var inputLabel = document.createElement("label");
+    inputLabel.style.textDecoration = `underline ${abilityColor}`;
     inputLabel.htmlFor = abilityShort + "-save-prof";
     inputLabel.className = "capitalize";
     inputLabel.innerHTML = `<span id="${abilityShort}-save-mod">_</span> ${saves[i]}`;
@@ -402,125 +296,68 @@ function RemoveBubleCheckFromTrait(wrapper){
 }
 
 
-document.getElementById("abilities").querySelector('input[value="+"]').addEventListener("click", function (e) {
+document.getElementById("traits").querySelector('input[value="+"]').addEventListener("click", function (e) {
     e.currentTarget.parentElement.appendChild(CreateTraitDropDown());
   });
 
-function CreateTraitDropDown(){
-  /*<div class="dropdown-wrapper">
-      <div class="dropdown-header">
-        <span>-</span>
-        <input type="text" name="ability-name" value="Ability">
-        <input type="button" name="add-check" value="+">
-        <input type="button" name="remove-check" value="-">
-      </div>
-      <div class="dropdown-body">
-        <ul class="ability-uses"></ul>
-        <div contenteditable="true" class="editable-text">Ability description</div>
-        <input type="button" name="remove-dropdown" value="remove">
-      </div>
-    </div> */
-    var wrapper = document.createElement("div");
-    wrapper.className = "dropdown-wrapper";
-    //
-    var header = document.createElement("div");
-    header.className = "dropdown-header";
-    ////
-    var spn = document.createElement("span");
-    spn.innerHTML = '-';
+function CreateTraitDropDown(traitData = undefined){
+    const trait = document.getElementById("trait-template").content.children[0].cloneNode(true);
 
-    var abilityName = document.createElement("input");
-    abilityName.type = "text";
-    abilityName.name = "ability-name";
-    abilityName.value = "Ability Name";
-
-    var addCheck = document.createElement("input");
-    addCheck.type = "button";
-    addCheck.name = "add-check";
-    addCheck.value = '+';
-
-    var removeCheck = document.createElement("input");
-    removeCheck.type = "button";
-    removeCheck.name = "remove-check";
-    removeCheck.value = '-';
-    ////
-    var body = document.createElement("div");
-    body.className = "dropdown-body";
-    ////
-    var ul = document.createElement("ul");
-    ul.className = "ability-uses";
-
-    var abilityDesc = document.createElement("div");
-    abilityDesc.contentEditable = true;
-    abilityDesc.className = "editable-text";
-    abilityDesc.innerHTML = "Ability Description";
-
-    var removeDropdown = document.createElement("input");
-    removeDropdown.type = "button";
-    removeDropdown.name = "remove-dropdown";
-    removeDropdown.value = 'remove';
-    ////
-    //
-    
-    header.append(spn, abilityName, addCheck, removeCheck);
-    body.append(ul, abilityDesc, removeDropdown);
-
-    wrapper.appendChild(header);
-    wrapper.appendChild(body);
-
-    RegisterMouseAndTouchEvent(spn, function(e){
-      e.preventDefault();
-      if(e.type == "mouseup" && e.button != 0){ return; }
-      FoldTraitDropdown(wrapper);
-    });
-
-    RegisterMouseAndTouchEvent(addCheck, function(e){
-      e.preventDefault();
-      if(e.type == "mouseup" && e.button != 0){ return; }
-      AddBubleCheckToTrait(wrapper);
-    });
-    
-    RegisterMouseAndTouchEvent(removeCheck, function(e){
-      e.preventDefault();
-      if(e.type == "mouseup" && e.button != 0){ return; }
-      RemoveBubleCheckFromTrait(wrapper);
-    });
-    
-    abilityDesc.addEventListener("focus", function (e) {e.currentTarget.spellcheck = true;});
-    abilityDesc.addEventListener("blur", function (e) {e.currentTarget.spellcheck = false;});
-
-    removeDropdown.addEventListener("touchstart", function(e) {e.currentTarget.parentElement.parentElement.remove(); e.preventDefault();});
-    removeDropdown.addEventListener("mouseup", function(e) { if(e.button == 0){ e.currentTarget.parentElement.parentElement.remove(); e.preventDefault();} });
-
-    return wrapper;
-}
-
-function SaveTraitDropDownsToCharacter(){
-  for(const trait of document.getElementsByClassName("dropdown-wrapper")){
-    let charges = trait.getElementsByTagName('li');
-    let expendedCharges = 0;
-    if(charges.length > 0){
-      for(const charge of charges){
-        if(charge.getElementsByTagName("input")[0].checked){ expendedCharges++; }
+    if(traitData){
+      trait.querySelector("[name='ability-name']").value = traitData.name;
+      trait.querySelector("[name='trait-desc']").innerText = traitData.description;
+      const chargeList = trait.querySelector(".ability-uses");
+      const chargeCheckbox = chargeList.querySelector("li").cloneNode(true);
+      while (chargeList.firstChild) {
+        chargeList.removeChild(chargeList.lastChild);
       }
+      for(let i = 0; i < traitData.charges; i++){
+        const node = chargeCheckbox.cloneNode(true);
+        chargeList.appendChild(node);
+        if(i < traitData.expended){node.querySelector("input").checked = true};
+      }
+      FoldTraitDropdown(trait);
     }
-    characterStats.traits.push({
-      name: trait.querySelector('[name="ability-name"]').value,
-      description: trait.querySelector('.dropdown-body').querySelector('.editable-text').innerText,
-      charges: charges.length,
-      expended: expendedCharges
+
+    RegisterMouseAndTouchEvent(trait.querySelector("span"), function(e){
+      e.preventDefault();
+      if(e.type == "mouseup" && e.button != 0){ return; }
+      FoldTraitDropdown(trait);
     });
-  }
+
+    RegisterMouseAndTouchEvent(trait.querySelector("[name='add-check']"), function(e){
+      e.preventDefault();
+      if(e.type == "mouseup" && e.button != 0){ return; }
+      AddBubleCheckToTrait(trait);
+    });
+    
+    RegisterMouseAndTouchEvent(trait.querySelector("[name='remove-check']"), function(e){
+      e.preventDefault();
+      if(e.type == "mouseup" && e.button != 0){ return; }
+      RemoveBubleCheckFromTrait(trait);
+    });
+
+    RegisterMouseAndTouchEvent(trait.querySelector("[name='remove-dropdown']"), function(e){
+      e.preventDefault();
+      if(e.type == "mouseup" && e.button != 0){ return; }
+      e.currentTarget.parentElement.parentElement.remove();
+    });
+    
+    trait.querySelector("[name='trait-desc']").addEventListener("focus", function (e) {e.currentTarget.spellcheck = true;});
+    trait.querySelector("[name='trait-desc']").addEventListener("blur", function (e) {e.currentTarget.spellcheck = false;});
+
+    return trait;
 }
+
 function LoadTraitDropDowns(){
-  let dropdownCol = document.getElementById("abilities").getElementsByClassName("dropdown-wrapper");
+  let dropdownCol = document.getElementById("traits").getElementsByClassName("dropdown-wrapper");
   if(dropdownCol.length > 0){
     for(let i = dropdownCol.length - 1; i >= 0; i--){
       dropdownCol.item(i).remove();
     }
   }
 
-  for(const trait of characterStats.traits){
+  for(const trait of data.traits){
     let dropdown = CreateTraitDropDown();
     dropdown.querySelector(".dropdown-header").querySelector('[name="ability-name"]').innerText = trait.name;
     dropdown.querySelector(".dropdown-body").querySelector(".editable-text").innerHTML = trait.description;
@@ -528,10 +365,90 @@ function LoadTraitDropDowns(){
     for(let i = 0; i < trait.charges; i++){
       AddBubleCheckToTrait(dropdown, (i < trait.expended));
     }
-    document.getElementById("abilities").appendChild(dropdown);
+    document.getElementById("traits").appendChild(dropdown);
   }
 }
 
+
+function CreateSpell(spellData = undefined){
+  const spell = document.getElementById("spell-template").content.children[0].cloneNode(true);
+
+  if(spellData){
+    spell.querySelector("[name='name']").value = spellData.name;
+    spell.querySelector("[name='lv']").value = spellData.lv;
+    spell.querySelector("[name='ready']").checked = spellData.ready;
+    spell.querySelector("[name='cast-time']").value = spellData["cast-time"];
+    spell.querySelector("[name='range']").value = spellData.range;
+    spell.querySelector("[name='duration']").value = spellData.duration;
+    spell.querySelector("[name='target']").value = spellData.target;
+    spell.querySelector("[name='components']").value = spellData.components;
+    spell.querySelector("[name='description']").innerText = spellData.description;
+  }
+
+  RegisterMouseAndTouchEvent(spell.querySelector("input[name='remove-spell']"), function(e){
+    e.preventDefault();
+    if(e.type == "mouseup" && e.button != 0){ return; }
+    
+    e.currentTarget.parentElement.remove();
+  });
+  return spell;
+}
+function CreateSpellSlotTracker(lv, slots, numChecked = 0){
+  const newSlot = document.getElementById("spell-slot-tracker-template").content.children[0].cloneNode(true);
+  const slotBlock = newSlot.querySelector("[name='spell-slot-tracker']");
+
+  newSlot.querySelector("[name='spell-slot-lv']").innerText = `LV-${lv}`;
+  newSlot.querySelector(".spinner").id = `lv${lv}_${newSlot.querySelector(".spinner").id}`;
+  slotBlock.id = `lv${lv}_${newSlot.querySelector("[name='spell-slot-tracker']").id}`;
+
+  for(let i = 0; i < slots; i++){
+    if(i === 0){
+      if(numChecked > 0){
+        slotBlock.querySelector("[name='slot']").checked = true;
+      }
+    }else{
+      if(numChecked > i){
+        slotBlock.appendChild(CreateSpellSlot(true));
+      }else{
+        slotBlock.appendChild(CreateSpellSlot());
+      }
+    }
+  }
+
+  RegisterMouseAndTouchEvent(newSlot.querySelector("[name='add-slot']"), function(e){
+    e.preventDefault();
+    if(e.type == "mouseup" && e.button != 0){ return; }
+
+    const target = e.currentTarget.parentElement.parentElement;
+    target.querySelector("[name='spell-slot-tracker']").appendChild(CreateSpellSlot());
+
+    const removeButton = e.currentTarget.parentElement.querySelector("[name='remove-slot']");
+    if(removeButton.disabled){removeButton.disabled = false;}
+  });
+  RegisterMouseAndTouchEvent(newSlot.querySelector("[name='remove-slot']"), function(e){
+    e.preventDefault();
+    if(e.type == "mouseup" && e.button != 0){ return; }
+
+    const target = e.currentTarget.parentElement.parentElement;
+    const slots = target.querySelectorAll("[name='slot']");
+
+    if(slots.length <= 1){
+      e.currentTarget.disabled = true;
+      return;
+    }
+
+    target.querySelector("[name='spell-slot-tracker']").removeChild(slots.item(slots.length - 1));
+  });
+
+  return newSlot;
+}
+function CreateSpellSlot(checked = false){
+  const add = document.createElement("input");
+  add.type = "checkbox";
+  add.name = "slot";
+  if(checked){add.checked = true;}
+  return add;
+}
 
 function RegisterSpecificMouseAndTouchEvent(elmnt, mouseEvent, touchEvent, fnctn) {
   if (elmnt !== null) {
@@ -546,14 +463,86 @@ function RegisterMouseAndTouchEvent(elmnt, fnctn) {
   }
 }
 
+
+RegisterMouseAndTouchEvent(document.getElementById("spell-list").querySelector("input"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  document.getElementById("spell-list").appendChild(CreateSpell());
+});
+RegisterMouseAndTouchEvent(document.getElementById("sorcery-point-reset-button"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  document.getElementById("sorcery-current-points").value = document.getElementById("sorcery-points").value;
+});
+
+RegisterMouseAndTouchEvent(document.getElementById("spell-slot-level-count-spinner").querySelector("[name='add-spell']"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+
+  const slotBlock = document.getElementById('spell-slot-block');
+  const slots = slotBlock.querySelectorAll("[name='spell-slot-tracker-wrapper']");
+
+  slotBlock.appendChild(CreateSpellSlotTracker(slots.length + 1, 1));
+  if(slots.length + 1 === 9){e.currentTarget.disabled = true;}
+
+  let removeButton = document.getElementById("spell-slot-level-count-spinner").querySelector("[name='remove-spell']");
+  if(removeButton.disabled) {removeButton.disabled = false;}
+});
+RegisterMouseAndTouchEvent(document.getElementById("spell-slot-level-count-spinner").querySelector("[name='remove-spell']"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  
+  const slotBlock = document.getElementById('spell-slot-block');
+  const slots = slotBlock.querySelectorAll("[name='spell-slot-tracker-wrapper']");
+  slotBlock.removeChild(slots.item(slots.length - 1));
+
+  let addButton = slotBlock.querySelector("[name='add-spell']");
+  if(addButton.disabled) {addButton.disabled = false;}
+
+  if(slots.length === 1){e.currentTarget.disabled = true;}
+});
+
+
+// update data 30s after user interacts with page
+// resets countdown on new input
+let saveTimeoutID;
+RegisterMouseAndTouchEvent(document.body, function(e){
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  if(saveTimeoutID){ clearTimeout(saveTimeoutID); }
+  saveTimeoutID = setTimeout(SaveSheet, 10000);
+});
+
+
 //
 //save / load
 //
 RegisterMouseAndTouchEvent(document.getElementById("save-btn"), function(e){
   e.preventDefault();
   if(e.type == "mouseup" && e.button != 0){ return; }
-  SaveTraitDropDownsToCharacter();
-  download(JSON.stringify(characterStats), "character-stats", "txt");
+  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
+  SaveSheet();
+  localStorage.setItem("sheet", JSON.stringify(data));
+});
+RegisterMouseAndTouchEvent(document.getElementById("clear-btn"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
+  localStorage.clear();
+  window.location.reload();
+});
+RegisterMouseAndTouchEvent(document.getElementById("download-btn"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
+  SaveSheet();
+  download(JSON.stringify(data), "character-stats", "txt");
+});
+RegisterMouseAndTouchEvent(document.getElementById("load-btn"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
+  LoadData(JSON.parse(localStorage.getItem("sheet")));
+  UpdateAllValues();
 });
 
 function download(data, filename, type) {
@@ -579,21 +568,380 @@ function HandleFiles(){
   fileReader.readAsText(this.files[0], "UTF-8");
   fileReader.onload = function(fileLoadedEvent){
     try {  
-      let charObj = JSON.parse(fileLoadedEvent.target.result);  
-      if(charObj.hasOwnProperty("ability score") && charObj.hasOwnProperty("proficiency bonus") && charObj.hasOwnProperty("traits")){
-        for(const prop in charObj){
-          if(characterStats.hasOwnProperty(prop)){
-            characterStats[prop] = charObj[prop];
-          }
-        }
-      }
-      LoadAbilities();
-      LoadSavingThrows();
-      LoadSkills();
-      LoadTraitDropDowns();
+      LoadData(JSON.parse(fileReader.result));
+      UpdateAllValues();
     } catch (e) {  
       console.log('invalid json');
     }
   };
+};
 
+function SaveSheet(){
+  const savingThrowBlock = document.getElementById("saving-throws").getElementsByTagName("input");
+  data["saving-throws"] = [];
+  for(let i = 0; i < savingThrowBlock.length; i++){
+    if(savingThrowBlock[i].checked){
+      data["saving-throws"].push(savingThrowBlock[i].id.substring(0,3));
+    }
+  }
+
+  const skillsBlock = document.getElementById("skills").getElementsByTagName("input");
+  data["skills"] = [];
+  for(const skill of skillsBlock){
+    if(skill.checked){
+      if(skill.classList.contains("double")){
+        data["skills"].push(`${skill.id.substring(0, skill.id.length - 5)}_expert`);
+      }else{
+        data["skills"].push(skill.id.substring(0, skill.id.length - 5));
+      }
+    }
+  }
+
+  emptySpells();
+  const spellSlotTracker = document.getElementById("spell-slot-block").querySelectorAll("[name='spell-slot-tracker']");
+  for(let i = 0; i < spellSlotTracker.length; i++){
+    const spellLV = spellSlotTracker[i].id.split("_")[0][2];
+    const uses = handleTicks(spellSlotTracker[i]);
+    data.spells[spellLV].slots = uses.split('/')[1];
+    data.spells[spellLV].expended = uses.split('/')[0];
+  }
+
+  const spellList = document.getElementById("spell-list").querySelectorAll("[name='spell']");
+  for(let i = 0; i < spellList.length; i++){
+    const spellData = {name:"", lv:"", ready:false, "cast-time":"", range:"", duration:"", target:"", components:"", description:""};
+    for(const key in spellData){
+      if(key === "description"){
+        spellData[key] = spellList[i].querySelector(`[name='${key}']`).innerText;
+      }else if(key === "ready"){
+        spellData[key] = spellList[i].querySelector(`[name='${key}']`).checked;
+      }else{
+        spellData[key] = spellList[i].querySelector(`[name='${key}']`).value;
+      }
+    }
+
+    if(spellData.lv === "cantrips" || spellData.lv === "---"){ 
+      data.spells.cantrips.push(spellData); 
+    }else{
+      data.spells[spellData.lv].spells.push(spellData);
+    }
+  }
+
+  const passiveWisdom = document.getElementById("passive-wisdom-prof").checked;
+  data["passive-wisdom"] = passiveWisdom;
+  
+  for(const key in data){
+    const element = document.getElementById(key);
+    if(element){
+
+      if(element.id === "traits"){
+        data.traits = [];
+        const traits = element.getElementsByClassName("dropdown-wrapper");
+        for(let i = 0; i < traits.length; i++){
+          let trait = {name: "", description: "", charges: 0, expended: 0};
+          trait.name = traits[i].querySelector("input[name='ability-name']").value;
+          trait.description = traits[i].querySelector("div[name='trait-desc']").innerText;
+          let charges = handleTicks(traits[i].querySelector(".ability-uses"));
+          trait.charges = parseInt(charges.split('/')[1]);
+          trait.expended = parseInt(charges.split('/')[0]);
+
+          data.traits.push(trait);
+        }
+        continue;
+      }
+
+      switch(element.dataset.inputType){
+        case "number":
+          data[key] = element.value;
+          break;
+
+        case "string":
+          data[key] = element.value;
+          break;
+
+        case "editable-div":
+          data[key] = element.innerText;
+          break;
+
+        case "checkbox":
+          data[key] = element.checked;
+          break;
+
+        case "string-select":
+          data[key] = element.value;
+          break;
+
+        case "ticks":
+          data[key] = handleTicks(element);
+          break;
+      }
+    }
+  }
+
+  function handleTicks(element){
+    let max = 0;
+    let active = 0;
+    element.querySelectorAll('input[type="checkbox"]').forEach((tick) => {
+      max++;
+      if(tick.checked) { active++; }
+    });
+    return `${active}/${max}`;
+  }
+  function emptySpells(){
+    for(const key in data.spells){
+      if(key === "cantrips"){
+        data.spells[key] = [];
+      }else{
+        data.spells[key].spells = [];
+        data.spells[key].slots = 0;
+        data.spells[key].expended = 0;
+      }
+    }
+  }
+  console.log(data);
+}
+
+function LoadData(sheetData){
+  console.log(sheetData);
+  data = sheetData;
+  for(const key in sheetData){
+    switch(key){
+      case "passive-wisdom":{
+        if(sheetData[key] === true){
+          const element = document.getElementById("passive-wisdom-prof");
+          element.checked = true;
+        }
+        break;
+      }
+      case "traits":{
+        const traitList = document.getElementById("traits");
+        clearChildren(traitList, ".dropdown-wrapper");
+        for(const trait of data["traits"]){
+          traitList.appendChild(CreateTraitDropDown(trait));
+        }
+        break;
+      }
+      case "spells":{
+        //spells and slots
+        const spellList = document.getElementById("spell-list");
+        const spellSlotTracker = document.getElementById("spell-slot-block");
+        const removeSlotButton = document.getElementById("spell-slot-level-count-spinner").querySelector("[name='remove-spell']");
+        const spellDataList = data.spells;
+        clearChildren(spellList, "[name='spell']");
+        clearChildren(spellSlotTracker, "[name='spell-slot-tracker-wrapper']");
+
+        for(const spellKey in spellDataList){
+          if(spellDataList[spellKey].hasOwnProperty("spells")){
+            if(spellDataList[spellKey].slots > 0){
+              spellSlotTracker.appendChild(CreateSpellSlotTracker(spellKey, spellDataList[spellKey].slots, spellDataList[spellKey].expended));
+              if(removeSlotButton.disabled){removeSlotButton.disabled = false;}
+            }
+            for(const spell of spellDataList[spellKey]["spells"]){
+              spellList.appendChild(CreateSpell(spell));
+            }
+          }else{//cantrips
+            for(const cantrip of spellDataList[spellKey]){
+              spellList.appendChild(CreateSpell(cantrip));
+            }
+          }
+        }
+        break;
+      }
+      case "skills":{
+        //expertise check
+        for(const skill of data["skills"]){
+          const skillData = skill.split("_");
+          const checkbox = document.getElementById(`${skillData[0]}-prof`);
+          if(checkbox){
+            checkbox.checked = true;
+            if(skillData[1]){
+              checkbox.classList.add("double");
+            }
+          }
+        }
+        break;
+      }
+      case "saving-throws":{
+        for(const save of data["saving-throws"]){
+          const checkbox = document.getElementById(`${save.substring(0,3)}-save-prof`);
+          if(checkbox){
+            checkbox.checked = true;
+          }
+        }
+        break;
+      }
+        
+      default:
+        break;
+    }
+
+    const element = document.getElementById(key);
+    if(element){
+      switch(element.dataset.inputType){
+        case "number":
+          element.value = data[key];
+          break;
+
+        case "string":
+          element.value = data[key];
+          break;
+
+        case "editable-div":
+          element.innerText = data[key];
+          break;
+
+        case "checkbox":
+          element.checked = data[key];
+          break;
+
+        case "string-select":
+          element.value = data[key];
+          break;
+
+        case "ticks":
+          handleTicks(element, data[key]);
+          break;
+      }
+    }
+
+  }
+
+  function handleTicks(element, values){
+    let max = values.split("/")[1];
+    let active = values.split("/")[0];
+    clearChildren(element);
+    for(let i = 0; i < max; i++){
+      let check = document.createElement("input");
+      check.type = "checkbox";
+      if(i < active){check.checked = true;}
+      element.appendChild(check);
+    }
+  }
+  function clearChildren(element, querySelector = undefined){
+    if(querySelector){
+      let child = element.querySelector(querySelector);
+      while(child){
+        element.removeChild(child);
+        child = element.querySelector(querySelector);
+      }
+    }else{
+      while (element.firstChild) {
+        element.removeChild(element.lastChild);
+      }
+    }
+  }
+}
+
+let data = {
+  "name": "Aelarion Brightwing",
+  "race": "Elf",
+  "class": "Ranger",
+  "background": "Outlander",
+  "level": 1,
+  "xp": 0,
+  "alignment": "Chaotic Good",
+  "hit-dice": "",
+
+  "strength": 10,
+  "dexterity": 14,
+  "constitution": 12,
+  "intelligence": 10,
+  "wisdom": 15,
+  "charisma": 13,
+
+  "prof-bonus": 2,
+  "prof-armor": "",
+  "prof-weapons": "",
+  "prof-tools": "",
+  "prof-languages": "",
+  "saving-throws": ["strength", "dexterity"],
+  "skills": ["athletics", "stealth", "survival"],
+  
+  "hp-current": 8,
+  "hp-max": 8,
+  "hp-temp": 0,
+
+  "death-saves-successes": 0,
+  "death-saves-failures": 0,
+
+  "inspiration": 0,
+  "passive-wisdom": 0,
+
+  "armor-class": 13,
+  "initiative": 2,
+  "speed": 30,
+
+  "equipment": "",
+
+  "money-cp": 50,
+  "money-sp": 0,
+  "money-ep": 0,
+  "money-gp": 50,
+  "money-pp": 0,
+
+  "traits": [
+    {
+      "name": "Ability Name",
+      "description": "Ability Description",
+      "charges": 2,
+      "expended": 0
+    }
+  ],
+
+  "spell-save": 8,
+  "spell-attack-mod": 8,
+  "spell-ability": "",
+
+  "sorcery-points": 0,
+  "sorcery-current-points": 0,
+
+  "spells":{
+    "cantrips": [
+    ],
+    "1":{
+      "slots": 2,
+      "expended": 1, 
+      "spells": [
+      ]
+    },
+    "2":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    },
+    "3":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    },
+    "4":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    },
+    "5":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    },
+    "6":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    },
+    "7":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    },
+    "8":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    },
+    "9":{
+      "slots": 0,
+      "expended": 0, 
+      "spells": []
+    }
+  }
 };
