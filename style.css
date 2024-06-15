@@ -322,9 +322,11 @@ input.buble-check.double:checked {
 .editable-area{
     border: solid black 1px;
     min-width: 48ch;
+    max-width: 48ch;
     display: inline-block;
     text-align: left;
     padding: 0 2px;
+    overflow-y: scroll;
   }
 
 
