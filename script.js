@@ -518,13 +518,6 @@ RegisterMouseAndTouchEvent(document.getElementById("save-btn"), function(e){
   SaveSheet();
   localStorage.setItem("sheet", JSON.stringify(data));
 });
-RegisterMouseAndTouchEvent(document.getElementById("clear-btn"), function(e){
-  e.preventDefault();
-  if(e.type == "mouseup" && e.button != 0){ return; }
-  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
-  localStorage.clear();
-  window.location.reload();
-});
 RegisterMouseAndTouchEvent(document.getElementById("download-btn"), function(e){
   e.preventDefault();
   if(e.type == "mouseup" && e.button != 0){ return; }
