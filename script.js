@@ -633,7 +633,7 @@ function SaveSheet(){
         const traits = element.getElementsByClassName("dropdown-wrapper");
         for(let i = 0; i < traits.length; i++){
           let trait = {name: "", description: "", charges: 0, expended: 0};
-          trait.name = traits[i].querySelector("input[name='ability-name']").value;
+          trait.name = traits[i].querySelector("[name='ability-name']").value;
           trait.description = traits[i].querySelector("[name='trait-desc']").innerHTML;
           let charges = handleTicks(traits[i].querySelector(".ability-uses"));
           trait.charges = parseInt(charges.split('/')[1]);
