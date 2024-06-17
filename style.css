@@ -183,7 +183,8 @@ input.buble-check.double:checked {
     font-family: "Fantasy", Copperplate;
 }
 
-.dropdown-header > input, .dropdown-header > span{
+.dropdown-header > input, 
+.dropdown-header > span{
     vertical-align: middle;
     display: inline-block;
 }
@@ -250,7 +251,10 @@ input.buble-check.double:checked {
 }
 
 .editable-text{
+    font-family:serif;
     box-sizing: border-box;
+    white-space: pre-wrap;
+    margin: 0;
 }
 .editable-text:focus{
     outline: solid black 1px;
@@ -320,13 +324,20 @@ input.buble-check.double:checked {
 }
 
 .editable-area{
+    --height: 3lh;
+    --width: 48ch;
+    font-family:serif;
     border: solid black 1px;
-    min-width: 48ch;
-    max-width: 48ch;
+    min-width: var(--width, 48ch);
+    max-width: var(--width, 48ch);
+    min-height: var(--height, 3lh);
+    max-height: var(--height, 3lh);
     display: inline-block;
     text-align: left;
     padding: 0 2px;
-    overflow-y: scroll;
+    margin: 0;
+    overflow-y:auto;
+    white-space: pre-wrap;
   }
 
 

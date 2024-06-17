@@ -11,16 +11,11 @@ UpdateAllValues();
 document.querySelectorAll(".ability-score").forEach((element) => {
   element.addEventListener("input", function () {
     CheckInputValueInRange(element, 1, 30);
-
     const mod = document.getElementById("prof-bonus").value;
-    //update mod
     UpdateStatMod(element.parentElement);
-
-    //update saving throw val
     UpdateSavingThrow(mod, document.getElementById(`${element.id.substring(0,3)}-save-prof`))
-
-    //update skill vals
     UpdateSkill(mod);
+    UpdateSpellStats(document.getElementById("prof-bonus").value);
   });
   if(element.id === "wisdom"){
     element.addEventListener("input", function () {
@@ -34,7 +29,8 @@ document.getElementById("prof-bonus").addEventListener("input", function (e) {
   CheckInputValueInRange(e.currentTarget, 2, 6);
   UpdatePasivePerception();
   UpdateSkill(e.currentTarget.value);
-  UpdateSavingThrow(document.getElementById("prof-bonus").value);
+  UpdateSavingThrow(e.currentTarget.value);
+  UpdateSpellStats(e.currentTarget.value);
 });
 
 //add event listeners to saving throws checkboxes
@@ -65,6 +61,11 @@ document.getElementById("skills").querySelectorAll('input[type="checkbox"]').for
 document.getElementById("passive-wisdom-prof").addEventListener("input", function(e){
   UpdatePasivePerception();
 });
+
+document.getElementById("spell-ability").addEventListener("input", function(e){
+  UpdateSpellStats(document.getElementById("prof-bonus").value);
+});
+
 
 function UpdateSkill(profBonus, skillCheckbox = undefined){
   if(skillCheckbox){
@@ -122,25 +123,25 @@ function UpdateSavingThrow(profBonus, checkbox = undefined){
     }
   }
 }
+function UpdateSpellStats(profBonus){
+  const spellSave = document.getElementById("spell-save");
+  const spellAttack = document.getElementById("spell-attack-mod");
+  const abilityMod = document.getElementById(FullStatNameFromPrefix(document.getElementById("spell-ability").value)).parentElement.querySelector(".stat-mod").innerText;
+  spellSave.value = 8 + parseInt(abilityMod) + parseInt(profBonus);
+  spellAttack.value = parseInt(abilityMod) + parseInt(profBonus);
+}
 function UpdateAllValues(){
   const profBonus = document.getElementById("prof-bonus").value;
   UpdateStatMod();
   UpdateSkill(profBonus);
   UpdatePasivePerception();
   UpdateSavingThrow(profBonus);
+  UpdateSpellStats(profBonus);
 }
+
 
 function CalcStatMod(score){
   return Math.floor((score - 10) / 2);
-}
-function CalcStatBonus(stat, hasProf){
-  if(statMap.has(stat)){
-    var bonus = CalcStatMod(statMap.get(stat));
-    return hasProf ? Number(bonus) + Number(profBonus) : Number(bonus);
-  }
-  else{
-    return 0;
-  }
 }
 
 function CheckInputValueInRange(inputElement, min, max){
@@ -165,16 +166,12 @@ function FullStatNameFromPrefix(statPrefix){
 }
 
 
+//
+// add elements to html
+//
 function FillSkillBlock(){
-  /*
-  skill structure
-  <input type="checkbox" class="buble-check" id="acrobatics"/>
-  <label for="acrobatics" data-stat-type="dex" class="capitalize">
-    <span id="acrobatics-mod">_</span> Acrobatics (dex) <span class="skill-type">(dex)</span>
-  </label>
-  <br> 
-   */
   var skillBlock = document.getElementById("skills");
+  const skillNodeTemplate = document.getElementById("skill-template").cloneNode(true);
   const skills = ["acrobatics_dexterity", "animal-handling_wisdom", "arcana_intelligence",
                   "athletics_strength", "deception_charisma", "history_intelligence", 
                   "insight_wisdom", "intimidation_charisma", "investigation_intelligence", 
@@ -183,52 +180,50 @@ function FillSkillBlock(){
                   "sleight-of-hand_dexterity", "stealth_dexterity", "survival_wisdom"];
 
   for(var i = skills.length - 1; i >= 0; i--){
-    var skill = skills[i].split("_");
-    var inputNode = document.createElement("input");
-    inputNode.type = "checkbox";
-    inputNode.className = "buble-check";
-    inputNode.id = `${skill[0]}-prof`;
+    const skillInput = skillNodeTemplate.content.children[0].cloneNode(true);
+    const skillLabel = skillNodeTemplate.content.children[1].cloneNode(true);
+    const skillDataPair = skills[i].split("_");
 
-    var inputLabel = document.createElement("label");
-    inputLabel.htmlFor = `${skill[0]}-prof`;
-    inputLabel.setAttribute("data-stat-type", skill[1].substring(0,3));
-    inputLabel.className = "capitalize";
-    inputLabel.innerHTML = `<span id="${skill[0]}-mod">_</span> ${skill[0].replace(/-/g, " ")} <span class="skill-type" style="--color:${window.getComputedStyle(document.getElementById(skill[1])).getPropertyValue("--color")}">(${skill[1].substring(0,3)})</span>`;
+    skillInput.id = `${skillDataPair[0]}-prof`;
+
+    skillLabel.htmlFor = `${skillDataPair[0]}-prof`;
+    skillLabel.setAttribute("data-stat-type", skillDataPair[1].substring(0,3));
     
+    const spans = skillLabel.querySelectorAll("span");
+    spans[0].id = `${skillDataPair[0]}-mod`;
+    spans[1].innerText = `${skillDataPair[0].replace(/-/g, " ")}`;
+    spans[2].innerText = `(${skillDataPair[1].substring(0,3)})`;
+    spans[2].style = `--color:${window.getComputedStyle(document.getElementById(skillDataPair[1])).getPropertyValue("--color")}`;
     
     skillBlock.insertBefore(document.createElement("br"), skillBlock.firstChild);
-    skillBlock.insertBefore(inputLabel, skillBlock.firstChild);
-    skillBlock.insertBefore(inputNode, skillBlock.firstChild);
+    skillBlock.insertBefore(skillLabel, skillBlock.firstChild);
+    skillBlock.insertBefore(skillInput, skillBlock.firstChild);
   }
 }
 function FillSavingThrowBlock(){
-  /*
-  save structure
-  <input type="checkbox" class="buble-check" id="str-save-prof"/>
-  <label for="str-save-prof">
-    <span id="str-save-mod">_</span> Strength
-  </label>
-  */
-  var savingThrowBlock = document.getElementById("saving-throws");
+  const savingThrowBlock = document.getElementById("saving-throws");
+  const saveNodeTemplate = document.getElementById("saving-throw-template").cloneNode(true);
   const saves = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
 
   for(var i = saves.length - 1; i >= 0; i--){
-    let abilityShort = saves[i].substring(0, 3);
-    var inputNode = document.createElement("input");
-    inputNode.type = "checkbox";
-    inputNode.className = "buble-check";
-    inputNode.id = abilityShort + "-save-prof";
+    const saveInput = saveNodeTemplate.content.children[0].cloneNode(true);
+    const saveLabel = saveNodeTemplate.content.children[1].cloneNode(true);
+    const abilityShort = saves[i].substring(0, 3);
+
+    
+    saveInput.id = abilityShort + "-save-prof";
   
-    let abilityColor = window.getComputedStyle(document.getElementById(saves[i])).getPropertyValue("--color");
-    var inputLabel = document.createElement("label");
-    inputLabel.style.textDecoration = `underline ${abilityColor}`;
-    inputLabel.htmlFor = abilityShort + "-save-prof";
-    inputLabel.className = "capitalize";
-    inputLabel.innerHTML = `<span id="${abilityShort}-save-mod">_</span> ${saves[i]}`;
+    saveLabel.htmlFor = abilityShort + "-save-prof";
+
+    const abilityColor = window.getComputedStyle(document.getElementById(saves[i])).getPropertyValue("--color");
+    const spans = saveLabel.querySelectorAll("span");
+    spans[0].id = `${abilityShort}-save-mod`;
+    spans[1].innerText = `${saves[i]}`;
+    spans[1].style.textDecoration = `underline ${abilityColor}`;
 
     savingThrowBlock.insertBefore(document.createElement("br"), savingThrowBlock.firstChild);
-    savingThrowBlock.insertBefore(inputLabel, savingThrowBlock.firstChild);
-    savingThrowBlock.insertBefore(inputNode, savingThrowBlock.firstChild);
+    savingThrowBlock.insertBefore(saveLabel, savingThrowBlock.firstChild);
+    savingThrowBlock.insertBefore(saveInput, savingThrowBlock.firstChild);
   }
 }
 
@@ -246,14 +241,14 @@ function FoldTraitDropdown(wrapper){
 
   if(body.classList.contains("folded-body")){
     body.classList.remove("folded-body");
-    body.querySelector(".editable-text").contentEditable = true;
+    body.querySelector("[name='trait-desc']").contentEditable = true;
   }
   else if(body.classList.contains("folded-body-small")){
     body.classList.remove("folded-body-small");
-    body.querySelector(".editable-text").contentEditable = true;
+    body.querySelector("[name='trait-desc']").contentEditable = true;
   }
   else{
-    body.querySelector(".editable-text").contentEditable = false;
+    body.querySelector("[name='trait-desc']").contentEditable = false;
     if(body.querySelector("ul").getElementsByTagName("li").length > 0){
       body.classList.add("folded-body");
     }
@@ -305,7 +300,7 @@ function CreateTraitDropDown(traitData = undefined){
 
     if(traitData){
       trait.querySelector("[name='ability-name']").value = traitData.name;
-      trait.querySelector("[name='trait-desc']").innerText = traitData.description;
+      trait.querySelector("[name='trait-desc']").innerHTML = traitData.description;
       const chargeList = trait.querySelector(".ability-uses");
       const chargeCheckbox = chargeList.querySelector("li").cloneNode(true);
       while (chargeList.firstChild) {
@@ -360,7 +355,7 @@ function LoadTraitDropDowns(){
   for(const trait of data.traits){
     let dropdown = CreateTraitDropDown();
     dropdown.querySelector(".dropdown-header").querySelector('[name="ability-name"]').innerText = trait.name;
-    dropdown.querySelector(".dropdown-body").querySelector(".editable-text").innerHTML = trait.description;
+    dropdown.querySelector(".dropdown-body").querySelector('[name="trait-desc"]').innerHTML = trait.description;
 
     for(let i = 0; i < trait.charges; i++){
       AddBubleCheckToTrait(dropdown, (i < trait.expended));
@@ -382,7 +377,7 @@ function CreateSpell(spellData = undefined){
     spell.querySelector("[name='duration']").value = spellData.duration;
     spell.querySelector("[name='target']").value = spellData.target;
     spell.querySelector("[name='components']").value = spellData.components;
-    spell.querySelector("[name='description']").innerText = spellData.description;
+    spell.querySelector("[name='description']").innerHTML = spellData.description;
   }
 
   RegisterMouseAndTouchEvent(spell.querySelector("input[name='remove-spell']"), function(e){
@@ -611,7 +606,7 @@ function SaveSheet(){
     const spellData = {name:"", lv:"", ready:false, "cast-time":"", range:"", duration:"", target:"", components:"", description:""};
     for(const key in spellData){
       if(key === "description"){
-        spellData[key] = spellList[i].querySelector(`[name='${key}']`).innerText;
+        spellData[key] = spellList[i].querySelector(`[name='${key}']`).innerHTML;
       }else if(key === "ready"){
         spellData[key] = spellList[i].querySelector(`[name='${key}']`).checked;
       }else{
@@ -639,7 +634,7 @@ function SaveSheet(){
         for(let i = 0; i < traits.length; i++){
           let trait = {name: "", description: "", charges: 0, expended: 0};
           trait.name = traits[i].querySelector("input[name='ability-name']").value;
-          trait.description = traits[i].querySelector("div[name='trait-desc']").innerText;
+          trait.description = traits[i].querySelector("[name='trait-desc']").innerHTML;
           let charges = handleTicks(traits[i].querySelector(".ability-uses"));
           trait.charges = parseInt(charges.split('/')[1]);
           trait.expended = parseInt(charges.split('/')[0]);
@@ -659,7 +654,7 @@ function SaveSheet(){
           break;
 
         case "editable-div":
-          data[key] = element.innerText;
+          data[key] = element.innerHTML;
           break;
 
         case "checkbox":
@@ -786,7 +781,7 @@ function LoadData(sheetData){
           break;
 
         case "editable-div":
-          element.innerText = data[key];
+          element.innerHTML = data[key];
           break;
 
         case "checkbox":
