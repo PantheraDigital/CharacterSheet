@@ -1,4 +1,4 @@
-"use strict";
+
 //fill page
 FillSkillBlock();
 FillSavingThrowBlock();

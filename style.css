@@ -336,7 +336,7 @@ input.buble-check.double:checked {
     text-align: left;
     padding: 0 2px;
     margin: 0;
-    overflow-y:auto;
+    overflow:auto;
     white-space: pre-wrap;
   }
 
