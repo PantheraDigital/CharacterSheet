@@ -66,6 +66,32 @@ document.getElementById("spell-ability").addEventListener("input", function(e){
   UpdateSpellStats(document.getElementById("prof-bonus").value);
 });
 
+document.getElementById("layout-color").addEventListener("input", function(e){
+  switch(e.currentTarget.value){
+    case "bright":{
+      document.body.style.setProperty("--main-BG-color", "white");
+      document.body.style.setProperty("--input-BG-color", "aliceblue");
+      document.body.style.setProperty("--input-color", "black");
+      document.body.style.setProperty("--input-hover-outline-color", "black");
+    }
+    break;
+    case "dark":{
+      document.body.style.setProperty("--main-BG-color", "rgb(50,50,50)");
+      document.body.style.setProperty("--input-BG-color", "rgb(65,65,65)");
+      document.body.style.setProperty("--input-color", "gainsboro");
+      document.body.style.setProperty("--input-hover-outline-color", "gainsboro");
+    }
+    break;
+    case "beige":{
+      document.body.style.setProperty("--main-BG-color", "antiquewhite");
+      document.body.style.setProperty("--input-BG-color", "beige");
+      document.body.style.setProperty("--input-color", "black");
+      document.body.style.setProperty("--input-hover-outline-color", "black");
+    }
+    break;
+  }
+});
+
 
 function UpdateSkill(profBonus, skillCheckbox = undefined){
   if(skillCheckbox){
