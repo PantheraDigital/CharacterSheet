@@ -6,7 +6,8 @@ body{
     --input-hover-outline-color: black;
     --input-button-hover-color: cornflowerblue;
     margin: 0;
-text-align: center;
+    text-align: center;
+    max-width: 100vw;
     background-color:var(--main-BG-color);
     color: var(--input-color);
 }
@@ -395,8 +396,7 @@ input.buble-check.double:checked {
     --width: 48ch;
     font-family:serif;
     border: solid black 1px;
-    min-width: var(--width, 48ch);
-    max-width: var(--width, 48ch);
+    width: var(--width, 48ch);
     min-height: var(--height, 3lh);
     max-height: var(--height, 3lh);
     display: inline-block;
