@@ -152,9 +152,11 @@ function UpdateSavingThrow(profBonus, checkbox = undefined){
 function UpdateSpellStats(profBonus){
   const spellSave = document.getElementById("spell-save");
   const spellAttack = document.getElementById("spell-attack-mod");
+  const spellAbility = document.getElementById("spell-ability-mod");
   const abilityMod = document.getElementById(FullStatNameFromPrefix(document.getElementById("spell-ability").value)).parentElement.querySelector(".stat-mod").innerText;
   spellSave.value = 8 + parseInt(abilityMod) + parseInt(profBonus);
   spellAttack.value = parseInt(abilityMod) + parseInt(profBonus);
+  spellAbility.value = parseInt(abilityMod);
 }
 function UpdateAllValues(){
   const profBonus = document.getElementById("prof-bonus").value;
@@ -524,6 +526,15 @@ RegisterMouseAndTouchEvent(document.getElementById("spell-slot-level-count-spinn
 });
 
 
+RegisterMouseAndTouchEvent(document.getElementById("activate-spellhub-btn"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  
+  ActivateSpellHub();
+  document.getElementById("main-article").style.display = "none";
+});
+
+
 // update data 30s after user interacts with page
 // resets countdown on new input
 let saveTimeoutID;
@@ -549,7 +560,8 @@ RegisterMouseAndTouchEvent(document.getElementById("download-btn"), function(e){
   if(e.type == "mouseup" && e.button != 0){ return; }
   setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
   SaveSheet();
-  download(JSON.stringify(data), "character-stats", "txt");
+  const name = data.name.replaceAll(" ", "-");
+  download(JSON.stringify(data), `DnDSheet-${name}`, "txt");
 });
 RegisterMouseAndTouchEvent(document.getElementById("load-btn"), function(e){
   e.preventDefault();
@@ -559,6 +571,8 @@ RegisterMouseAndTouchEvent(document.getElementById("load-btn"), function(e){
   UpdateAllValues();
 });
 
+//File System Access API https://developer.chrome.com/docs/capabilities/web-apis/file-system-access
+//FileSaver.js
 function download(data, filename, type) {
   var file = new Blob([data], {type: type});
   if (window.navigator.msSaveOrOpenBlob) // IE10+

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <title>CharaterStatSheet</title>
+      <meta charset="utf-8">
+      <meta name="author" content="Panthera">
+      <meta name="description" content="An interactive stat sheet to record your charater's stats fast and easy."><!--description used in search result of page-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"><!--describes how the layout and content adapts to the mobile viewport-->
+      <meta name="application-name" content="CharaterStatSheet"><!--name used for the "Add to Home Screen" function in their web browser -->
+      <meta name="keywords" content="DnD stat sheet character"><!--keywords for search engines-->
+
+      <link rel="stylesheet" href="style.css" />
+    </head>
+<body>
+
+  <template id="spell-hub-template">
+    <article id="spell-hub" style="position:fixed; inset: 0; overflow: auto; text-align: center; background: black; background-attachment: fixed;">
+      <div style="display: inline-block; overflow: auto; box-sizing: border-box; background-color: whitesmoke; width: min(700px, 100%); margin: 20px 0; padding: 20px;">
+        
+        <h2 style="text-align: center;">Spell<mark style="background-color: mediumpurple;">Hub</mark></h2>
+        <div style="text-align: center;">
+          <label>Level <select id="spell-select-level">
+            <option value="Cantrips" selected>Cantrip</option>
+            <option value="1st LV">LV 1</option>
+            <option value="2nd LV">LV 2</option>
+            <option value="3rd LV">LV 3</option>
+            <option value="4th LV">LV 4</option>
+            <option value="5th LV">LV 5</option>
+            <option value="6th LV">LV 6</option>
+            <option value="7th LV">LV 7</option>
+            <option value="8th LV">LV 8</option>
+            <option value="9th LV">LV 9</option>
+          </select></label>
+          <label>Book <select id="spell-select-book">
+            <option value="any" selected>Any</option>
+            <option value="Artificer">Artificer</option>
+            <option value="Bard">Bard</option>
+            <option value="Cleric">Cleric</option>
+            <option value="Druid">Druid</option>
+            <option value="Paladin">Paladin</option>
+            <option value="Ranger">Ranger</option>
+            <option value="Sorcerer">Sorcerer</option>
+            <option value="Warlock">Warlock</option>
+            <option value="Wizard">Wizard</option>
+          </select></label>
+          <label>School <select id="spell-select-school">
+            <option value="any" selected>Any</option>
+            <option value="Abjuration">Abjuration</option>
+            <option value="Alteration">Alteration</option>
+            <option value="Conjuration">Conjuration</option>
+            <option value="Divination">Divination</option>
+            <option value="Enchantment">Enchantment</option>
+            <option value="Illusion">Illusion</option>
+            <option value="Invocation">Invocation</option>
+            <option value="Necromancy">Necromancy</option>
+          </select></label>
+        </div>
+        <br>
+        <div style="display: inline-block; text-align: left; ">
+          <button id="add-spell-button">Add Selected</button>
+  
+          <table class="spell-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>LV</th>
+                <th>School</th>
+                <th>Books</th>
+                <th style="width: 15px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+  
+          <div id="spell-hub-loading">Gathering Spells...</div>
+  
+        </div>
+
+      </div>
+
+    </article>
+  </template>
+  <template id="spell-hub-table-row-template">
+    <tr id="spell-hub-row1" name="prime-row">
+      <td><input type="checkbox"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>
+        <button style="height: 11px; width: 11px; padding: 0; box-sizing: content-box;" value="toggle-details">
+          <span class="icon fill down-angles" style="--mask-size: 8px;"></span>
+        </button>
+      </td>
+    </tr>
+    <tr id="spell-hub-row1-details" class="hidden">
+      <td colspan="5"><span style="display: inline-block; background-color: lightgrey; min-height: 2em; padding: 10px;"></span></td>
+    </tr>
+  </template>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

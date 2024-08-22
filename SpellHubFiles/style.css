@@ -1,0 +1,56 @@
+#spell-hub{
+    position:fixed; 
+    inset: 0; 
+    overflow: auto; 
+    text-align: center; 
+    background-attachment: fixed;
+    background-color: black; 
+}
+#spell-hub .spell-hub-body{
+    display: inline-block; 
+    overflow: auto; 
+    box-sizing: border-box; 
+    width: min(700px, 100%); 
+    margin: 20px 0; 
+    padding: 20px;
+
+    color: var(--input-color);
+    background-color: var(--main-BG-color);
+}
+
+#spell-hub table{
+    border-collapse: collapse;
+}
+#spell-hub tr[name="prime-row"]:hover{
+    background-color: rgba(0, 0, 0, 0.2);
+}
+#spell-hub td, #spell-hub th {
+    border: 1px solid darkgrey;
+    text-align: left;
+    padding: 5px 5px;
+}
+
+#spell-hub .spell-details-span{
+    display: inline-block; 
+    min-height: 2em; 
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.05); 
+}
+
+#spell-hub .fill-color{
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+
+.hidden{
+    display: none;
+}
+
+
+/*table in spell description*/
+#spell-hub .summon-table{
+    background-color: rgba(0, 0, 0, 0.05);
+}
+#spell-hub .summon-table td, .summon-table th {
+    border: 1px solid black !important;
+}

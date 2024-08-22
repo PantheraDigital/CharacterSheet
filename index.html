@@ -10,6 +10,7 @@
       <meta name="keywords" content="DnD stat sheet character"><!--keywords for search engines-->
 
       <link rel="stylesheet" href="style.css" />
+      <link rel="stylesheet" href="SpellHubFiles/style.css" />
     </head>
 <body>
   <template id="spell-template">
@@ -85,7 +86,117 @@
     </label>
   </template>
 
-  <span style="display: inline-block; width: fit-content; margin: 5px; text-align: left;">
+  <template id="spell-hub-template">
+    <article id="spell-hub">
+      <div class="spell-hub-body">
+        
+        <h2 style="text-align: center;">Spell<mark style="background-color: mediumpurple;">Hub</mark></h2>
+        <div style="text-align: center;">
+          <label>Level <select id="spell-select-level">
+            <option value="Cantrips" selected>Cantrip</option>
+            <option value="1st LV">LV 1</option>
+            <option value="2nd LV">LV 2</option>
+            <option value="3rd LV">LV 3</option>
+            <option value="4th LV">LV 4</option>
+            <option value="5th LV">LV 5</option>
+            <option value="6th LV">LV 6</option>
+            <option value="7th LV">LV 7</option>
+            <option value="8th LV">LV 8</option>
+            <option value="9th LV">LV 9</option>
+          </select></label>
+          <label>Book <select id="spell-select-book">
+            <option value="any" selected>Any</option>
+            <option value="Artificer">Artificer</option>
+            <option value="Bard">Bard</option>
+            <option value="Cleric">Cleric</option>
+            <option value="Druid">Druid</option>
+            <option value="Paladin">Paladin</option>
+            <option value="Ranger">Ranger</option>
+            <option value="Sorcerer">Sorcerer</option>
+            <option value="Warlock">Warlock</option>
+            <option value="Wizard">Wizard</option>
+          </select></label>
+          <label>School <select id="spell-select-school">
+            <option value="any" selected>Any</option>
+            <option value="Abjuration">Abjuration</option>
+            <option value="Alteration">Alteration</option>
+            <option value="Conjuration">Conjuration</option>
+            <option value="Divination">Divination</option>
+            <option value="Enchantment">Enchantment</option>
+            <option value="Illusion">Illusion</option>
+            <option value="Invocation">Invocation</option>
+            <option value="Necromancy">Necromancy</option>
+          </select></label>
+        </div>
+        <br>
+        <div style="display: inline-block; text-align: left; ">
+          <button id="add-spell-button">Add Selected</button>
+          <button id="close-spell-hub" style="float: right;">Exit Hub</button>
+  
+          <table class="spell-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>LV</th>
+                <th>School</th>
+                <th>Books</th>
+                <th style="width: 15px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+  
+          <div id="spell-hub-loading">Gathering Spells...</div>
+  
+        </div>
+
+      </div>
+
+    </article>
+  </template>
+  <template id="spell-hub-table-row-template">
+    <tr id="spell-hub-row1" name="prime-row">
+      <td><label><input type="checkbox"></label></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>
+        <button style="height: 11px; width: 11px; padding: 0; box-sizing: content-box;" value="toggle-details">
+          <span class="icon fill down-angles" style="--mask-size: 8px; --color:black;"></span>
+        </button>
+      </td>
+    </tr>
+    <tr id="spell-hub-row1-details" class="hidden">
+      <td colspan="5"><span class="spell-details-span"></span></td>
+    </tr>
+  </template>
+
+
+  <header id="main-header">
+
+    <label>Layout Color <select id="layout-color">
+      <option value="bright" selected>Bright</option>
+      <option value="dark">Dark</option>
+      <option value="beige">Beige</option>
+    </select></label>
+    <input id="save-btn" type="button" value="save local">
+    <input id="load-btn" type="button" value="load local">
+    <input id="download-btn" type="button" value="download File">
+    <input type="file" id="load-file" accept=".txt">
+    <button id="activate-spellhub-btn">Spell<u style="text-decoration-color: mediumpurple;">Hub</u></button>
+    <details style="text-align: left;">
+      <summary>Links</summary>
+      <nav style="display: inline-block; background-color: rgba(0, 0, 0, 0.1);">
+        <a href="https://docs.google.com/spreadsheets/d/1ehwe5W57QFWyTca85clkP1ArQvBCMJ8m91VejUyEdkQ/edit?usp=drive_link">Spell Data Sheet</a><br>
+        <a href="https://github.com/PantheraDigital/CharacterSheet"><span class="icon github"></span> GitHub</a><br>
+        <a href="https://ko-fi.com/pantheradigital"><img src="kofi_s_logo_nolabel.png" alt="ko-fi cup" width="25" style="vertical-align: middle;">Ko-fi</a>
+      </nav>
+    </details>
+  </header>
+
+
+  <article id="main-article" style="display: inline-block; width: fit-content; margin: 5px; text-align: left;">
     <div id="character-meta-block" class="container-border" style="height: fit-content;">
       <label>name <input id="name" data-input-type="string"></label><br>
       <div class="input-container" style="--label-max-width:177px; --label-padding: 5px 5px 0 0">
@@ -235,7 +346,8 @@
                 <option value="wis">wisdom</option>
                 <option value="cha">charisma</option>
               </select></label>
-              <label>save <input id="spell-save" data-input-type="number" type="number" disabled></label>
+              <label>ability mod <input id="spell-ability-mod" data-input-type="number" type="number" disabled></label>
+              <label>save DC<input id="spell-save" data-input-type="number" type="number" disabled></label>
               <label>atk mod <input id="spell-attack-mod" data-input-type="number" type="number" disabled></label>
             </div>
           </div>
@@ -304,21 +416,11 @@
     </div>
 
 
-    <div style="margin: 20px 0 10px 0;">
-      <label>Layout Color <select id="layout-color">
-        <option value="bright" selected>Bright</option>
-        <option value="dark">Dark</option>
-        <option value="beige">Beige</option>
-      </select></label>
-      <input id="save-btn" type="button" value="save local">
-      <input id="load-btn" type="button" value="load local">
-      <input id="download-btn" type="button" value="download File">
-      <input type="file" id="load-file" accept=".txt">
-    </div>
 
-
-  </span>
+  </article>
   
+
   <script src="script.js"></script>
+  <script src="SpellHubFiles/script.js"></script>
 </body>
 </html>
