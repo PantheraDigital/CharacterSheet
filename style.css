@@ -67,7 +67,16 @@ select:hover, select:focus{
     background-color: rgba(0, 0, 0, 0.1);
 }
 #main-header > *{
-    margin-right: 10px;
+    margin: 10px 5px 0 5px;
+}
+
+.link-container{
+    display: inline-block; 
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.link-container > a{
+    display: inline-block;
+    margin: 3px 0;
 }
 
 
