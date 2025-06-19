@@ -10,58 +10,83 @@
       <meta name="keywords" content="DnD stat sheet character"><!--keywords for search engines-->
 
       <link rel="stylesheet" href="style.css" />
+      <link rel="stylesheet" href="icon.css" />
       <link rel="stylesheet" href="SpellHubFiles/style.css" />
+      <link rel="stylesheet" href="DragAndDrop/style.css" />
     </head>
 <body>
-  <template id="spell-template">
-    <div class="container-border" name="spell" style="width: fit-content; max-width: 100%;">
-      <label><span>spell</span> <input name="name" style="font-weight: bold; font-style: italic;"></label>
-      <label><span>LV</span> <select name="lv">
-        <option value="---" disabled selected>---</option>
-        <option value="cantrips">cantrip</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-      </select></label>
-      <label><span>ready</span> <input name="ready" type="checkbox"></label>
-      
-      <br>
-      <label><span>cast time</span> <input name="cast-time"></label><br>
-      <label><span>range/area</span> <input name="range"></label><br>
-      <label><span>duration</span> <input name="duration"></label><br>
-      <label><span>target</span> <input name="target"></label><br>
-      <label><span>components</span> <input name="components"></label><br>
+    <script>
+        document.addEventListener("keydown", function(event){
+          if(event.ctrlKey && event.shiftKey &&
+            (event.key === "i" || event.key === "b" || event.key === "u")){
+            event.preventDefault();
+          }
+        });
 
-      <label><span>description</span><br> <pre name="description" contenteditable="true" class="editable-area" style="--height: 7lh; --width:50ch;"></pre></label>
-      <input type="button" name="remove-spell" value="remove" style="display: block;">
-    </div>
+        fetch('DragAndDrop/template.html')
+          .then(response => {
+            // When the page is loaded convert it to text
+            return response.text()
+          })
+          .then(html => {
+            // Initialize the DOM parser
+            const parser = new DOMParser()
+
+            // Parse the text
+            const doc = parser.parseFromString(html, "text/html")
+
+            // You can now even select part of that html as you would in the regular DOM
+            // Example:
+            // const docArticle = doc.querySelector('article').innerHTML
+
+            document.body.insertAdjacentHTML("afterbegin", doc.querySelector("#draggable-base-template").outerHTML)
+          })
+          .catch(error => {
+            console.error('Failed to fetch page: ', error)
+          })
+
+    </script>
+
+  <template id="editable-text-template">
+    <pre contenteditable="true" class="editable-text" style="--height:20lh; overflow: auto;"></pre>
   </template>
-  <template id="trait-template">
-    <div class="dropdown-wrapper">
-      <div class="dropdown-header">
-        <span>-</span>
-        <input type="text" name="ability-name" value="Ability Name">
-        <input type="button" name="add-check" value="+">
-        <input type="button" name="remove-check" value="-">
-      </div>
-      <div class="dropdown-body">
-        <ul class="ability-uses"><li style="display: inline-block;">
-            <input type="checkbox" name="ability-tracker-buble" class="buble-check">
-          </li><li style="display: inline-block;">
-            <input type="checkbox" name="ability-tracker-buble" class="buble-check">
-          </li></ul>
-        <pre contenteditable="true" class="editable-text" name="trait-desc">
-          Ability Description
-        </pre>
-        <input type="button" name="remove-dropdown" value="remove">
-      </div>
-    </div>
+  <template id="spell-table-template">
+    <table>
+      <tr>
+        <td>Level</td>
+        <td>
+          <select name="lv">
+            <option value="---" disabled selected>---</option>
+            <option value="cantrips">cantrip</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Cast Time</td>
+        <td><input name="cast-time"></td>
+      </tr>
+      <tr>
+        <td>Range</td>
+        <td><input name="range"></td>
+      </tr>
+      <tr>
+        <td>Duration</td>
+        <td><input name="duration"></td>
+      </tr>
+      <tr>
+        <td>Components</td>
+        <td><input name="components"></td>
+      </tr>
+    </table>
   </template>
   <template id="spell-slot-tracker-template">
     <div name="spell-slot-tracker-wrapper" style="display: inline-block; padding: 5px 5px 0 0;">
@@ -180,8 +205,8 @@
       <option value="dark">Dark</option>
       <option value="beige">Beige</option>
     </select></label>
-    <input id="save-btn" type="button" value="save local">
-    <input id="load-btn" type="button" value="load local">
+    <!--input id="save-btn" type="button" value="save local">
+    <input id="load-btn" type="button" value="load local"-->
     <input id="download-btn" type="button" value="download File">
     <input type="file" id="load-file" accept=".txt">
     <button id="activate-spellhub-btn">Spell<u style="text-decoration-color: mediumpurple;">Hub</u></button>
@@ -288,7 +313,7 @@
             <span>Skills</span>
           </div>
 
-          <div id="passive-wisdom-block" class="container-border input-container" style="--num-input-max-width:4ch; text-align: center; max-width: none;">
+          <div id="passive-wisdom-block" class="container-border input-container" style="--num-input-max-width:5ch; text-align: center; max-width: none;">
             <label><input id="passive-wisdom-prof" data-input-type="checkbox" type="checkbox">passive wisdom <input id="passive-wisdom-val" data-input-type="number" type="number" disabled></label>
           </div>
           
@@ -300,7 +325,7 @@
       <div>
         
         <div class="container-border" style="text-align: center; max-width: 100%;">
-          <div id="combat-stats-block" class="input-container container-border" style="--num-input-max-width:4ch; display: inline-block;">
+          <div id="combat-stats-block" class="input-container container-border" style="--num-input-max-width:5ch; display: inline-block;">
             <label>AC <input id="armor-class" data-input-type="number" type="number" max="99"></label>
             <label>speed <input id="speed" data-input-type="number" type="number" max="99"></label>
             <label>initiative <input id="initiative" data-input-type="number" type="number" max="99"></label>
@@ -337,7 +362,7 @@
 
           <div id="spell-block" class="container-border" style="text-align: center;">
             Spell Stats<br>
-            <div class="input-container" style="--num-input-max-width:4ch; --label-padding: 5px 0 0 0;">
+            <div class="input-container" style="--num-input-max-width:5ch; --label-padding: 5px 0 0 0;">
               <label>ability <select id="spell-ability" data-input-type="string-select">
                 <option value="str">strength</option>
                 <option value="dex">dexterity</option>
@@ -353,14 +378,14 @@
           </div>
     
     
-          <div id="sorcery-point-block" class="input-container container-border" style="--num-input-max-width:4ch;">
+          <div id="sorcery-point-block" class="input-container container-border" style="--num-input-max-width:5ch;">
             <label>sorcery points <input id="sorcery-points" data-input-type="number" type="number" max="99" min="0"></label>
             <label>current points <input id="sorcery-current-points" data-input-type="number" type="number" max="99" min="0"></label>
             <input id="sorcery-point-reset-button" type="button" value="reset" style="vertical-align: middle;">
           </div>
     
     
-          <div id="spell-slot-block" class="input-container container-border" style="--num-input-max-width:4ch;">
+          <div id="spell-slot-block" class="input-container container-border" style="--num-input-max-width:5ch;">
             <label>spell slots</label>
             <span id="spell-slot-level-count-spinner">
               <button name="add-spell">+</button>
@@ -387,19 +412,22 @@
       </div>
 
       <div id="equipment-block" class="input-container container-border" style="--label-text-max-width:9ch; text-align: center;  display: inline-block;  vertical-align: top;">
-        <label><span>equipment</span><br> <pre id="equipment" data-input-type="editable-div" contenteditable="true" class="editable-area" style="max-height:none; min-height: 5lh; overflow-y: visible;"></pre></label><br>
+        <label><span>equipment</span><br> <pre id="equipment" data-input-type="editable-div" contenteditable="true" class="editable-area" style="--height:10lh; min-height: 5lh; overflow-y: visible;"></pre></label><br>
       </div>
     </div>
 
+    <div id="note-block" class="input-container container-border" style="--label-text-max-width:12ch; text-align: center;  display: inline-block;  vertical-align: top;">
+      <label><span>player notes</span><br> <pre id="player-notes" data-input-type="editable-div" contenteditable="true" class="editable-area" style="--height:10lh; min-height: 5lh; overflow-y: visible;"></pre></label><br>
+    </div>
 
     <div style="display: flex; flex-direction: row; gap:10px; flex-wrap:wrap;">
       
       <div>
 
-        <div id="traits" class="container-border">
-          <input type="button" value="+">
-          <span>Features & Traits</span>
-
+        <div class="container-border ">
+          <label><input type="button" value="+"> Features & Traits</label>
+          <hr>
+          <div id="traits" class="draggable-container"></div>
         </div>
 
       </div>
@@ -407,8 +435,10 @@
       
       <div>
         
-        <div id="spell-list" class="container-border">
+        <div class="container-border">
           <input type="button" value="Add Spell">
+          <hr>
+          <div id="spell-list" class="draggable-container"></div>
         </div>
 
       </div>
@@ -420,7 +450,10 @@
   </article>
   
 
+  <script src="json.js"></script>
   <script src="script.js"></script>
+
   <script src="SpellHubFiles/script.js"></script>
+  <script src="DragAndDrop/script.js"></script>
 </body>
 </html>

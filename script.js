@@ -255,166 +255,100 @@ function FillSavingThrowBlock(){
   }
 }
 
-//
-//drop downs
-//
-function FoldTraitDropdown(wrapper){
-  let body = wrapper.querySelector(".dropdown-body");
-  let spn = wrapper.querySelector(".dropdown-header").querySelector("span");
 
-  if (spn.innerHTML == "-")
-    spn.innerHTML = "+";
-  else
-    spn.innerHTML = "-";
+document.getElementById("traits").parentElement.querySelector('input[value="+"]').addEventListener("click", function (e) {
+  const ddelm = CreateTraitElement();
+  document.getElementById("traits").appendChild(ddelm);
+});
 
-  if(body.classList.contains("folded-body")){
-    body.classList.remove("folded-body");
-    body.querySelector("[name='trait-desc']").contentEditable = true;
-  }
-  else if(body.classList.contains("folded-body-small")){
-    body.classList.remove("folded-body-small");
-    body.querySelector("[name='trait-desc']").contentEditable = true;
-  }
-  else{
-    body.querySelector("[name='trait-desc']").contentEditable = false;
-    if(body.querySelector("ul").getElementsByTagName("li").length > 0){
-      body.classList.add("folded-body");
+function CreateTraitElement({dropGroup="traits", title="Name", body="Description"}={}){
+  let ddelm = null;
+
+  //handle old format
+  if(arguments.length > 0){
+    if("charges" in arguments[0]){
+      const ticks = Array(arguments[0]["charges"]).fill(true);
+      if(arguments[0]["expended"] > 0){
+        let expendedCount = 0;
+        ticks.forEach((tick)=>{
+          tick = false;
+          expendedCount += 1;
+          if(expendedCount === arguments[0]["expended"]){return;}
+        });
+      }
+      const bodyTemplate = document.getElementById("editable-text-template").content.children[0].cloneNode(true);
+      bodyTemplate.setAttribute("name", "description");
+      bodyTemplate.innerText = arguments[0]["description"];
+      ddelm = CreateDragAndDropElement(
+        {dropGroup: dropGroup, title: arguments[0]["name"], body: bodyTemplate, ticks:ticks}
+      );
+    }else{
+      if(!body.includes('contenteditable="true"')){
+        const bodyTemplate = document.getElementById("editable-text-template").content.children[0].cloneNode(true);
+        bodyTemplate.setAttribute("name", "description");
+        bodyTemplate.innerText = body;
+        body = bodyTemplate;
+      }
+      ddelm = CreateDragAndDropElement(arguments[0]);
     }
-    else{
-      body.classList.add("folded-body-small");
-    }
+  }else{
+    const bodyTemplate = document.getElementById("editable-text-template").content.children[0].cloneNode(true);
+    bodyTemplate.setAttribute("name", "description");
+    bodyTemplate.innerText = "Description";
+    ddelm = CreateDragAndDropElement({dropGroup:dropGroup, title:title, body:bodyTemplate});
   }
-}
 
-function AddBubleCheckToTrait(wrapper, checked = false){
-  //<li><input type="checkbox" class="buble-check"/></li>
-  let check = document.createElement("input");
-  check.type = "checkbox";
-  check.name = "ability-tracker-buble";
-  check.className = "buble-check";
-  check.checked = checked;
-
-  let li = document.createElement("li");
-  li.appendChild(check);
-  li.style.display = "inline-block";
-
-  let body = wrapper.querySelector(".dropdown-body");
-  body.querySelector("ul").appendChild(li);
-  if(body.classList.contains("folded-body-small")){
-    body.classList.remove("folded-body-small");
-    body.classList.add("folded-body");
-  }
-}
-
-function RemoveBubleCheckFromTrait(wrapper){
-  let body = wrapper.querySelector(".dropdown-body");
-  let ul = body.querySelector("ul");
-  if(ul && ul.lastChild){ ul.removeChild(ul.lastChild); }
-  if(ul.getElementsByTagName("li").length <= 0){
-    if(body.classList.contains("folded-body")){
-      body.classList.add("folded-body-small");
-      body.classList.remove("folded-body");
-    }
-  }
-}
-
-
-document.getElementById("traits").querySelector('input[value="+"]').addEventListener("click", function (e) {
-    e.currentTarget.parentElement.appendChild(CreateTraitDropDown());
+  DDActivate(ddelm);
+  RegisterMouseAndTouchEvent(ddelm.querySelector("[name='remove-self']"), function (e) {
+    e.preventDefault();
+    if (e.type == "mouseup" && e.button != 0) { return; }
+    ddelm.remove();
   });
-
-function CreateTraitDropDown(traitData = undefined){
-    const trait = document.getElementById("trait-template").content.children[0].cloneNode(true);
-
-    if(traitData){
-      trait.querySelector("[name='ability-name']").value = traitData.name;
-      trait.querySelector("[name='trait-desc']").innerHTML = traitData.description;
-      const chargeList = trait.querySelector(".ability-uses");
-      const chargeCheckbox = chargeList.querySelector("li").cloneNode(true);
-      while (chargeList.firstChild) {
-        chargeList.removeChild(chargeList.lastChild);
-      }
-      for(let i = 0; i < traitData.charges; i++){
-        const node = chargeCheckbox.cloneNode(true);
-        chargeList.appendChild(node);
-        if(i < traitData.expended){node.querySelector("input").checked = true};
-      }
-      FoldTraitDropdown(trait);
-    }
-
-    RegisterMouseAndTouchEvent(trait.querySelector("span"), function(e){
-      e.preventDefault();
-      if(e.type == "mouseup" && e.button != 0){ return; }
-      FoldTraitDropdown(trait);
-    });
-
-    RegisterMouseAndTouchEvent(trait.querySelector("[name='add-check']"), function(e){
-      e.preventDefault();
-      if(e.type == "mouseup" && e.button != 0){ return; }
-      AddBubleCheckToTrait(trait);
-    });
-    
-    RegisterMouseAndTouchEvent(trait.querySelector("[name='remove-check']"), function(e){
-      e.preventDefault();
-      if(e.type == "mouseup" && e.button != 0){ return; }
-      RemoveBubleCheckFromTrait(trait);
-    });
-
-    RegisterMouseAndTouchEvent(trait.querySelector("[name='remove-dropdown']"), function(e){
-      e.preventDefault();
-      if(e.type == "mouseup" && e.button != 0){ return; }
-      e.currentTarget.parentElement.parentElement.remove();
-    });
-    
-    trait.querySelector("[name='trait-desc']").addEventListener("focus", function (e) {e.currentTarget.spellcheck = true;});
-    trait.querySelector("[name='trait-desc']").addEventListener("blur", function (e) {e.currentTarget.spellcheck = false;});
-
-    return trait;
-}
-
-function LoadTraitDropDowns(){
-  let dropdownCol = document.getElementById("traits").getElementsByClassName("dropdown-wrapper");
-  if(dropdownCol.length > 0){
-    for(let i = dropdownCol.length - 1; i >= 0; i--){
-      dropdownCol.item(i).remove();
-    }
-  }
-
-  for(const trait of data.traits){
-    let dropdown = CreateTraitDropDown();
-    dropdown.querySelector(".dropdown-header").querySelector('[name="ability-name"]').innerText = trait.name;
-    dropdown.querySelector(".dropdown-body").querySelector('[name="trait-desc"]').innerHTML = trait.description;
-
-    for(let i = 0; i < trait.charges; i++){
-      AddBubleCheckToTrait(dropdown, (i < trait.expended));
-    }
-    document.getElementById("traits").appendChild(dropdown);
-  }
+  ddelm.querySelector("[name='description']").addEventListener("focus", function (e) { e.currentTarget.spellcheck = true; });
+  ddelm.querySelector("[name='description']").addEventListener("blur", function (e) { e.currentTarget.spellcheck = false; });
+  return ddelm;
 }
 
 
-function CreateSpell(spellData = undefined){
-  const spell = document.getElementById("spell-template").content.children[0].cloneNode(true);
+// problems with different name usage
+function CreateSpell({dropGroup="spells", title="Spell Name", body="Description", readyTick=false}={}){
+  let ddelm = null;
+  const bodyTable = document.getElementById("spell-table-template").content.children[0].cloneNode(true);
+  let trueBody = bodyTable;
 
-  if(spellData){
-    spell.querySelector("[name='name']").value = spellData.name;
-    spell.querySelector("[name='lv']").value = spellData.lv;
-    spell.querySelector("[name='ready']").checked = spellData.ready;
-    spell.querySelector("[name='cast-time']").value = spellData["cast-time"];
-    spell.querySelector("[name='range']").value = spellData.range;
-    spell.querySelector("[name='duration']").value = spellData.duration;
-    spell.querySelector("[name='target']").value = spellData.target;
-    spell.querySelector("[name='components']").value = spellData.components;
-    spell.querySelector("[name='description']").innerHTML = spellData.description;
+  if(arguments.length > 0){
+    if(!body.includes('contenteditable="true"')){
+      const bodyTemplate = document.getElementById("editable-text-template").content.children[0].cloneNode(true);
+      bodyTemplate.setAttribute("name", "description");
+      bodyTemplate.innerHTML = body;
+      trueBody = [bodyTable, bodyTemplate];
+    }else{
+      trueBody = [bodyTable, body]
+    }
+    bodyTable.querySelector("[name='lv']").value = arguments[0].lv;
+    bodyTable.querySelector("[name='cast-time']").value = arguments[0]["cast-time"];
+    bodyTable.querySelector("[name='range']").value = arguments[0].range;
+    bodyTable.querySelector("[name='duration']").value = arguments[0].duration;
+    bodyTable.querySelector("[name='components']").value = arguments[0].components;
+    arguments[0].body = trueBody;
+    ddelm = CreateDragAndDropElement(arguments[0]);
+  }else{
+    const bodyTemplate = document.getElementById("editable-text-template").content.children[0].cloneNode(true);
+    bodyTemplate.setAttribute("name", "description");
+    bodyTemplate.innerHTML = "Description";
+    trueBody = [bodyTable, bodyTemplate];
+    ddelm = CreateDragAndDropElement({dropGroup:dropGroup, title:title, readyTick:readyTick, body:trueBody});
   }
 
-  RegisterMouseAndTouchEvent(spell.querySelector("input[name='remove-spell']"), function(e){
+
+  DDActivate(ddelm);
+  RegisterMouseAndTouchEvent(ddelm.querySelector("input[name='remove-self']"), function(e){
     e.preventDefault();
     if(e.type == "mouseup" && e.button != 0){ return; }
     
-    e.currentTarget.parentElement.remove();
+    ddelm.remove();
   });
-  return spell;
+  return ddelm;
 }
 function CreateSpellSlotTracker(lv, slots, numChecked = 0){
   const newSlot = document.getElementById("spell-slot-tracker-template").content.children[0].cloneNode(true);
@@ -487,7 +421,7 @@ function RegisterMouseAndTouchEvent(elmnt, fnctn) {
 }
 
 
-RegisterMouseAndTouchEvent(document.getElementById("spell-list").querySelector("input"), function(e){
+RegisterMouseAndTouchEvent(document.getElementById("spell-list").parentElement.querySelector("input"), function(e){
   e.preventDefault();
   if(e.type == "mouseup" && e.button != 0){ return; }
   document.getElementById("spell-list").appendChild(CreateSpell());
@@ -535,41 +469,39 @@ RegisterMouseAndTouchEvent(document.getElementById("activate-spellhub-btn"), fun
 });
 
 
-// update data 30s after user interacts with page
-// resets countdown on new input
-let saveTimeoutID;
-RegisterMouseAndTouchEvent(document.body, function(e){
-  if(e.type == "mouseup" && e.button != 0){ return; }
-  if(saveTimeoutID){ clearTimeout(saveTimeoutID); }
-  saveTimeoutID = setTimeout(SaveSheet, 10000);
-});
-
 
 //
 //save / load
 //
-RegisterMouseAndTouchEvent(document.getElementById("save-btn"), function(e){
-  e.preventDefault();
-  if(e.type == "mouseup" && e.button != 0){ return; }
-  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
-  SaveSheet();
-  localStorage.setItem("sheet", JSON.stringify(data));
+document.addEventListener("visibilitychange", (event) => {
+  if(document.hidden){
+    SaveSheet();
+    localStorage.setItem("sheet", JSON.stringify(data));
+  }
 });
 RegisterMouseAndTouchEvent(document.getElementById("download-btn"), function(e){
   e.preventDefault();
   if(e.type == "mouseup" && e.button != 0){ return; }
-  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
   SaveSheet();
   const name = data.name.replaceAll(" ", "-");
   download(JSON.stringify(data), `DnDSheet-${name}`, "txt");
 });
+
+/*
+RegisterMouseAndTouchEvent(document.getElementById("save-btn"), function(e){
+  e.preventDefault();
+  if(e.type == "mouseup" && e.button != 0){ return; }
+  SaveSheet();
+  localStorage.setItem("sheet", JSON.stringify(data));
+});
 RegisterMouseAndTouchEvent(document.getElementById("load-btn"), function(e){
   e.preventDefault();
   if(e.type == "mouseup" && e.button != 0){ return; }
-  setTimeout(function(){clearTimeout(saveTimeoutID);}, 5000);
   LoadData(JSON.parse(localStorage.getItem("sheet")));
   UpdateAllValues();
 });
+*/
+
 
 //File System Access API https://developer.chrome.com/docs/capabilities/web-apis/file-system-access
 //FileSaver.js
@@ -634,23 +566,26 @@ function SaveSheet(){
     data.spells[spellLV].expended = uses.split('/')[0];
   }
 
-  const spellList = document.getElementById("spell-list").querySelectorAll("[name='spell']");
+  const spellList = document.getElementById("spell-list").querySelectorAll(".draggable");
   for(let i = 0; i < spellList.length; i++){
-    const spellData = {name:"", lv:"", ready:false, "cast-time":"", range:"", duration:"", target:"", components:"", description:""};
-    for(const key in spellData){
-      if(key === "description"){
-        spellData[key] = spellList[i].querySelector(`[name='${key}']`).innerHTML;
-      }else if(key === "ready"){
-        spellData[key] = spellList[i].querySelector(`[name='${key}']`).checked;
-      }else{
-        spellData[key] = spellList[i].querySelector(`[name='${key}']`).value;
-      }
-    }
+    const spellLV = spellList[i].querySelector("[name='lv']").value;
+    if(spellLV){
+      const spellData = 
+        { lv:spellLV,  
+          "cast-time":spellList[i].querySelector("[name='cast-time']").value, 
+          range:spellList[i].querySelector("[name='range']").value, 
+          duration:spellList[i].querySelector("[name='duration']").value, 
+          components:spellList[i].querySelector("[name='components']").value};
 
-    if(spellData.lv === "cantrips" || spellData.lv === "---"){ 
-      data.spells.cantrips.push(spellData); 
-    }else{
-      data.spells[spellData.lv].spells.push(spellData);
+      const tempElm = spellList[i].cloneNode(true);
+      tempElm.querySelector("table").remove();
+      Object.assign(spellData, DragAndDropToJSON(tempElm));
+
+      if(spellLV === "cantrips" || spellLV === "---"){ 
+        data.spells.cantrips.push(spellData); 
+      }else{
+        data.spells[spellLV].spells.push(spellData);
+      }
     }
   }
 
@@ -663,16 +598,9 @@ function SaveSheet(){
 
       if(element.id === "traits"){
         data.traits = [];
-        const traits = element.getElementsByClassName("dropdown-wrapper");
-        for(let i = 0; i < traits.length; i++){
-          let trait = {name: "", description: "", charges: 0, expended: 0};
-          trait.name = traits[i].querySelector("[name='ability-name']").value;
-          trait.description = traits[i].querySelector("[name='trait-desc']").innerHTML;
-          let charges = handleTicks(traits[i].querySelector(".ability-uses"));
-          trait.charges = parseInt(charges.split('/')[1]);
-          trait.expended = parseInt(charges.split('/')[0]);
-
-          data.traits.push(trait);
+        const traits = element.getElementsByClassName("draggable");
+        for(const trait of traits){
+          data.traits.push(DragAndDropToJSON(trait));
         }
         continue;
       }
@@ -742,9 +670,9 @@ function LoadData(sheetData){
       }
       case "traits":{
         const traitList = document.getElementById("traits");
-        clearChildren(traitList, ".dropdown-wrapper");
+        clearChildren(traitList, ".draggable");
         for(const trait of data["traits"]){
-          traitList.appendChild(CreateTraitDropDown(trait));
+          traitList.appendChild(CreateTraitElement(trait));
         }
         break;
       }
@@ -754,7 +682,7 @@ function LoadData(sheetData){
         const spellSlotTracker = document.getElementById("spell-slot-block");
         const removeSlotButton = document.getElementById("spell-slot-level-count-spinner").querySelector("[name='remove-spell']");
         const spellDataList = data.spells;
-        clearChildren(spellList, "[name='spell']");
+        clearChildren(spellList, ".draggable");
         clearChildren(spellSlotTracker, "[name='spell-slot-tracker-wrapper']");
 
         for(const spellKey in spellDataList){
@@ -764,10 +692,15 @@ function LoadData(sheetData){
               if(removeSlotButton.disabled){removeSlotButton.disabled = false;}
             }
             for(const spell of spellDataList[spellKey]["spells"]){
+              if("name" in spell){spell.title = spell.name;}
+              if("description" in spell){spell.body = spell.description;}
+              if("ready" in spell){spell.readyTick = spell.ready;}
               spellList.appendChild(CreateSpell(spell));
             }
           }else{//cantrips
             for(const cantrip of spellDataList[spellKey]){
+              if("name" in cantrip){cantrip.title = cantrip.name;}
+              if("description" in cantrip){cantrip.body = cantrip.description;}
               spellList.appendChild(CreateSpell(cantrip));
             }
           }
@@ -899,6 +832,7 @@ let data = {
   "speed": 30,
 
   "equipment": "",
+  "player-notes": "",
 
   "money-cp": 50,
   "money-sp": 0,
@@ -928,8 +862,7 @@ let data = {
     "1":{
       "slots": 2,
       "expended": 1, 
-      "spells": [
-      ]
+      "spells": []
     },
     "2":{
       "slots": 0,

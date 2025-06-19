@@ -118,15 +118,15 @@ function ActivateSpellHub(){
         for(const spellData of spellsToAdd){
           // reformat data to match format of spells passed to CreateSpell
           const displaySpellData = {
-            name:spellData.name,
+            title:spellData.name,
             lv: spellData.level.toLowerCase(),
-            ready:false,
+            readyTick: (spellData.level.toLowerCase() !== "cantrips") ? false : null,
             "cast-time":spellData["cast-time"],
             range:spellData.range,
             duration:spellData.duration,
             target:spellData.target,
             components:spellData.components,
-            description:
+            body:
             `${spellData.description}<br>${(spellData["up-cast"]) ? `<br>${spellData["up-cast"]}<br>` : ""}${(spellData.extra) ? `<br>${spellData.extra}<br>` : ""}<br><b>Books:</b> ${spellData.books}<br><b>Source:</b> ${spellData.source}`
           }
           // CreateSpell - function in primary script //

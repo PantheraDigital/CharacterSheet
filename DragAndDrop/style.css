@@ -1,0 +1,88 @@
+.disable {
+    display: none;
+}
+
+
+.draggable-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: min(537px, calc(100vw - 25px));
+    min-width: 266px;
+}
+
+.draggable {
+    --color: #666;
+    border: 3px solid var(--color);
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 5px;
+    position: relative;
+    min-width: 250px;
+    max-width: max(537px, 100%);
+}
+
+.draggable.over {
+    border-style: dotted;
+}
+
+.draggable.over-bad {
+    border-style: dotted;
+    border-color: red;
+}
+
+
+.drag-handle {
+    cursor: move;
+    text-align: center;
+    width: 25px;
+    height: 25px;
+    background-color: darkgrey;
+}
+
+.drag-edit-button {
+    width: 25px;
+    height: 25px;
+    background-color: darkgrey;
+}
+.drag-edit-button.active{
+    background-color: grey;
+}
+
+.drag-edit-overlay {
+    position: absolute;
+    inset: 0 0 0 33px;
+    color: aliceblue;
+    background-color: rgba(0, 0, 0, 0.747);
+    z-index: 1;
+}
+
+.drag-content {
+    float: right;
+    border: 1px black solid;
+    width: calc(100% - 25px - 5px);
+    overflow: auto;
+}
+
+/*.drag-content-header {
+    background-color: lightgray;
+}*/
+
+.drag-content-header.large {
+    height: 100px;
+}
+
+.drag-content-title {
+    background-color: var(--input-BG-color);
+    color: var(--input-color);
+}
+
+.drag-content-body {
+    margin: 5px;
+}
+
+.drag-content-notes {
+    resize: none;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+}

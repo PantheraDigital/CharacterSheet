@@ -1,0 +1,49 @@
+<html lang="en">
+
+<head></head>
+
+<body>
+
+    <template id="draggable-base-template">
+        <span draggable="true" name="drop-target" data-drop-group="" data-drop-enabled="false" class="draggable">
+            <span style="display: inline-block;">
+                <div name="drag-handle" class="drag-handle">
+                    <span class="icon move no-event in-text"></span>
+                </div>
+                <button type="button" class="drag-edit-button">
+                    <span class="icon edit no-event"></span>
+                </button>
+            </span>
+
+            <div class="drag-edit-overlay disable">
+                <label><input type="checkbox" name="editReadyTick">Ready Check</label><br>
+                <label><input type="checkbox" name="editNotes">Notes</label><br>
+                <label><input type="number" min="0" max="10" value="0" name="editTicks">Ticks</label><br>
+                <label><input type="color" name="editColor">Color</label>
+            </div>
+
+            <details class="drag-content">
+                <summary class="drag-content-header">
+                    <input type="text" name="ability-name" value="Ability Name" class="drag-content-title" style="margin-bottom: 3px;">
+                </summary>
+                <div class="drag-content-body">
+                </div>
+                <input type="button" name="remove-self" value="remove">
+            </details>
+        </span>
+    </template>
+
+
+
+    <!--
+    <div class="draggable-container">
+
+        <span class="draggable" draggable="false" name="drop-target" data-drop-group="1"></span>
+
+    </div>
+    -->
+
+
+</body>
+
+</html>
