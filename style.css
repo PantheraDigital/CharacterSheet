@@ -409,8 +409,8 @@ input.buble-check.double:checked {
     font-family:serif;
     border: solid black 1px;
     width: var(--width, 48ch);
-    min-height: var(--height, 3lh);
-    max-height: var(--height, 3lh);
+    min-height: var(--height, 2lh);
+    max-height: var(--height, 2lh);
     display: inline-block;
     text-align: left;
     padding: 0 2px;
