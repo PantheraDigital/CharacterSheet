@@ -404,7 +404,7 @@ input.buble-check.double:checked {
 }
 
 .editable-area{
-    --height: 3lh;
+    --height: 2lh;
     --width: 48ch;
     font-family:serif;
     border: solid black 1px;

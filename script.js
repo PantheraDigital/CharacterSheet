@@ -483,7 +483,7 @@ RegisterMouseAndTouchEvent(document.getElementById("download-btn"), function(e){
   e.preventDefault();
   if(e.type == "mouseup" && e.button != 0){ return; }
   SaveSheet();
-  const name = data.name.replaceAll(" ", "-");
+  const name = data.name.trim().replaceAll(" ", "-");
   download(JSON.stringify(data), `DnDSheet-${name}`, "txt");
 });
 
@@ -658,7 +658,7 @@ function SaveSheet(){
 
 function LoadData(sheetData){
   console.log(sheetData);
-  data = sheetData;
+  Object.assign(data, sheetData);
   for(const key in sheetData){
     switch(key){
       case "passive-wisdom":{
@@ -793,32 +793,32 @@ function LoadData(sheetData){
 }
 
 let data = {
-  "name": "Aelarion Brightwing",
-  "race": "Elf",
-  "class": "Ranger",
-  "background": "Outlander",
-  "level": 1,
+  "name": "",
+  "race": "",
+  "class": "",
+  "background": "",
+  "level": 0,
   "xp": 0,
-  "alignment": "Chaotic Good",
+  "alignment": "",
   "hit-dice": "",
 
   "strength": 10,
-  "dexterity": 14,
-  "constitution": 12,
+  "dexterity": 10,
+  "constitution": 10,
   "intelligence": 10,
-  "wisdom": 15,
-  "charisma": 13,
+  "wisdom": 10,
+  "charisma": 10,
 
   "prof-bonus": 2,
   "prof-armor": "",
   "prof-weapons": "",
   "prof-tools": "",
   "prof-languages": "",
-  "saving-throws": ["strength", "dexterity"],
-  "skills": ["athletics", "stealth", "survival"],
+  "saving-throws": [],
+  "skills": [],
   
-  "hp-current": 8,
-  "hp-max": 8,
+  "hp-current": 0,
+  "hp-max": 0,
   "hp-temp": 0,
 
   "death-saves-successes": 0,
@@ -827,30 +827,31 @@ let data = {
   "inspiration": 0,
   "passive-wisdom": 0,
 
-  "armor-class": 13,
-  "initiative": 2,
-  "speed": 30,
+  "armor-class": 0,
+  "initiative": 0,
+  "speed": 0,
 
   "equipment": "",
+  "equipped": "",
   "player-notes": "",
 
-  "money-cp": 50,
+  "money-cp": 0,
   "money-sp": 0,
   "money-ep": 0,
-  "money-gp": 50,
+  "money-gp": 0,
   "money-pp": 0,
 
   "traits": [
     {
       "name": "Ability Name",
       "description": "Ability Description",
-      "charges": 2,
+      "charges": 0,
       "expended": 0
     }
   ],
 
-  "spell-save": 8,
-  "spell-attack-mod": 8,
+  "spell-save": 0,
+  "spell-attack-mod": 0,
   "spell-ability": "",
 
   "sorcery-points": 0,
@@ -860,8 +861,8 @@ let data = {
     "cantrips": [
     ],
     "1":{
-      "slots": 2,
-      "expended": 1, 
+      "slots": 0,
+      "expended": 0, 
       "spells": []
     },
     "2":{

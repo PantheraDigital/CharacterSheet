@@ -9,6 +9,8 @@
     gap: 5px;
     max-width: min(537px, calc(100vw - 25px));
     min-width: 266px;
+    max-height: 355px;
+    overflow-y: auto;
 }
 
 .draggable {
@@ -58,7 +60,7 @@
 
 .drag-content {
     float: right;
-    border: 1px black solid;
+    border-left: 1px black solid;
     width: calc(100% - 25px - 5px);
     overflow: auto;
 }
